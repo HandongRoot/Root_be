@@ -29,7 +29,8 @@ ext {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+//	implementation 'org.springframework.security:spring-security-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
@@ -38,10 +39,26 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.springframework.security:spring-security-oauth2-client:6.2.4'
+//	implementation 'org.springframework.security:spring-security-oauth2-client:6.2.4'
 	implementation 'org.springframework.boot:spring-boot-starter-mustache'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	implementation 'org.jsoup:jsoup:1.15.3'
+
+//	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+//	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.174'
+//
+//	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+//	implementation 'com.fasterxml.jackson.core:jackson-core:2.15.2'
+//	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
+//
+//	// JWT dependencies (use consistent versions)
+//	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+//	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+//	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // or 'io.jsonwebtoken:jjwt-gson:0.11.5' for gson support
+
+//	implementation 'com.google.auth:google-auth-library-oauth2-http:1.7.0'
+//	implementation 'com.google.api-client:google-api-client:1.33.2'
+//	implementation 'com.google.http-client:google-http-client-jackson2:1.39.2'
 }
 
 dependencyManagement {
