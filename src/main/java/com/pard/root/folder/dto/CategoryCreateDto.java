@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 public class CategoryCreateDto {
     private User user;
-    private String name;
+    private String title;
 }

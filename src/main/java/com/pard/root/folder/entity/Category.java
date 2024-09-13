@@ -27,7 +27,7 @@ public class Category extends BaseTimeEntity {
     private User user;
 
     @Column(nullable = false , name= "category_name")
-    private String name;
+    private String title;
 
     @Column(name = "count_contents")
     private Long countContents;
@@ -35,7 +35,7 @@ public class Category extends BaseTimeEntity {
     public static Category toEntity(CategoryCreateDto categoryCreateDto){
         return Category.builder()
                 .user(categoryCreateDto.getUser())
-                .name(categoryCreateDto.getName())
+                .title(categoryCreateDto.getName())
                 .build();
 
     }
