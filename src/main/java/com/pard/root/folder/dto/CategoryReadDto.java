@@ -10,9 +10,9 @@ import lombok.Setter;
 public class CategoryReadDto {
     private Long id;
     private String title;
-    private Long countContents;
+    private Integer countContents;
 
-    public Long numberContents(Category category) {
+    public Integer numberContents(Category category) {
         this.countContents = category.getCountContents();
         return countContents;
     }

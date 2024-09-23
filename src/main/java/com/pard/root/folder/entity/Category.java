@@ -30,12 +30,13 @@ public class Category extends BaseTimeEntity {
     private String title;
 
     @Column(name = "count_contents")
-    private Long countContents;
+    private Integer countContents;
 
-    public static Category toEntity(CategoryCreateDto categoryCreateDto){
+    public static Category toEntity(User user, String title, Integer countContents) {
         return Category.builder()
-                .user(categoryCreateDto.getUser())
-                .title(categoryCreateDto.getName())
+                .user(user)
+                .title(title)
+                .countContents(countContents)
                 .build();
 
     }

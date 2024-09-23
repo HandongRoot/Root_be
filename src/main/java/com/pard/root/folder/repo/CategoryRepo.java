@@ -13,6 +13,6 @@ public interface CategoryRepo extends JpaRepository<Category, Long> {
 
     List<Category> findByUserId(UUID userId);
 
-    @Query("select c.title from Category c where c.user.id = :userId AND c.title like %:titlePart%")
-    List<CategoryReadDto> findByUserIdAndNameContaining(@Param("userId") UUID userId, @Param("titlePart") String titlePart);
+    @Query("select c from Category c where c.user.id = :userId AND c.title like %:titlePart%")
+    List<Category> findByUserIdAndNameContaining(@Param("userId") UUID userId, @Param("titlePart") String titlePart);
 }
