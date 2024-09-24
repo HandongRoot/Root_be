@@ -1,13 +1,51 @@
 package com.pard.root.content.service;
 
+import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.entity.Content;
+import com.pard.root.content.repo.ContentRepository;
+import com.pard.root.folder.entity.Category;
+import com.pard.root.folder.repo.CategoryRepo;
+import com.pard.root.folder.service.CategoryService;
+import com.pard.root.user.entity.User;
+import com.pard.root.user.repo.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
+    private final ContentRepository contentRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepo categoryRepo;
+
+
+    public void saveContent(Long categoryId, UUID userId,ContentCreateDto dto){
+        Category category = categoryRepo.findbyId(categoryId);
+        User user = userRepository.findById(userId).orElseThrow();
+
+        contentRepository.save(Content.toEntity(category, user , dto));
+    }
+
+    @Transactional
+    public void changeCategory(Long contentId, Long categoryId) {
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + categoryId));
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+
+        content.changeCategory(category);
+        contentRepository.save(content);
+    }
+
+    public List<Content> findAll(UUID userId){
+        User user = userRepository.findById(userId).orElseThrow();;
+        return contentRepository.findAllByUser(user);
+    }
 }

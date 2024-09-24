@@ -1,11 +1,14 @@
 package com.pard.root.content.entity;
 
+import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.folder.entity.Category;
+import com.pard.root.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.w3c.dom.Text;
+
 
 @Entity
 @Getter
@@ -17,8 +20,13 @@ public class Content {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, name = "category_id")
-    private Long categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "category_id")
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
 
     @Column(nullable = false, name = "title")
     private String title;
@@ -28,8 +36,25 @@ public class Content {
     private String pictureUrl;
 
     @Lob
-    @Column(nullable = false, name = "rinked_url", columnDefinition = "TEXT")
-    private String rinkedUrl;
+    @Column(nullable = false, name = "linked_url", columnDefinition = "TEXT")
+    private String linkedUrl;
 
+    public static Content toEntity(Category category, User user, ContentCreateDto dto) {
+        return Content.builder()
+                .category(category)
+                .user(user)
+                .title(dto.getTitle())
+                .pictureUrl(dto.getPictureUrl())
+                .linkedUrl(dto.getLinkedUrl())
+                .build();
+    }
 
+    public void changeCategory(Category category) {
+        this.category = category;
+    }
+
+    public void changeUser(User user) {
+        this.user = user;
+    }
 }
+
