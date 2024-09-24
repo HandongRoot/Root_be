@@ -1,6 +1,7 @@
 package com.pard.root.content.service;
 
 import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.entity.Content;
 import com.pard.root.content.repo.ContentRepository;
 import com.pard.root.folder.entity.Category;
@@ -44,8 +45,19 @@ public class ContentService {
         contentRepository.save(content);
     }
 
-    public List<Content> findAll(UUID userId){
+    public List<ContentReadDto> findAll(UUID userId){
         User user = userRepository.findById(userId).orElseThrow();;
         return contentRepository.findAllByUser(user);
+    }
+
+    public List<ContentReadDto> findbyUserIdAndTitlePart(UUID userId, String titlePart){
+        User user = userRepository.findById(userId).orElseThrow();
+
+        return contentRepository.findByUserAndTitleContains(user, titlePart);
+    }
+
+    @Transactional
+    public void deleteContent (Long contentId){
+        contentRepository.deleteById(contentId);
     }
 }
