@@ -15,6 +15,10 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    public User findById(UUID id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
     public void createUser(UserCreateDto dto){
         User user = userRepository.save(User.toEntity(dto));
     }

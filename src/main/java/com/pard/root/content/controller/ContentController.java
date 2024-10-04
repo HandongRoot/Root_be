@@ -15,7 +15,11 @@ import java.util.UUID;
 @Slf4j
 @RequestMapping("/api/content")
 public class ContentController {
-    private ContentService contentService;
+    private final ContentService contentService;
+
+    public ContentController(ContentService contentService) {
+        this.contentService = contentService;
+    }
 
 
     @PostMapping("/save/{userId}/{categoryId}")
@@ -32,24 +36,24 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/change/{contentId}/{afterCategoryId}")
-    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
-        try {
-            contentService.changeCategory(contentId, afterCategoryId);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-        }
-    }
-
-    @DeleteMapping("/delete/{contentId}")
-    public ResponseEntity<?> deleteContent(@PathVariable Long contentId) {
-        try {
-            contentService.deleteContent(contentId);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
-        }
-        catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-        }
-    }
+//    @PatchMapping("/change/{contentId}/{afterCategoryId}")
+//    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
+//        try {
+//            contentService.changeCategory(contentId, afterCategoryId);
+//            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+//        }
+//    }
+//
+//    @DeleteMapping("/delete/{contentId}")
+//    public ResponseEntity<?> deleteContent(@PathVariable Long contentId) {
+//        try {
+//            contentService.deleteContent(contentId);
+//            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
+//        }
+//        catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+//        }
+//    }
 }

@@ -9,6 +9,7 @@ import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
+import com.pard.root.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,42 +23,44 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
+
     private final ContentRepository contentRepository;
-    private final UserRepository userRepository;
-    private final CategoryRepo categoryRepo;
+    private final CategoryService categoryService;
+    private final UserService userService;
+
 
 
     public void saveContent(Long categoryId, UUID userId,ContentCreateDto dto){
-        Category category = categoryRepo.findbyId(categoryId);
-        User user = userRepository.findById(userId).orElseThrow();
+        Category category = categoryService.findById(categoryId);
+        User user = userService.findById(userId);
 
-        contentRepository.save(Content.toEntity(category, user , dto));
+
+        contentRepository.save(Content.toEntity(category, user, dto));
     }
 
-    @Transactional
-    public void changeCategory(Long contentId, Long categoryId) {
-        Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found with id: " + categoryId));
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
-
-        content.changeCategory(category);
-        contentRepository.save(content);
-    }
-
-    public List<ContentReadDto> findAll(UUID userId){
-        User user = userRepository.findById(userId).orElseThrow();;
-        return contentRepository.findAllByUser(user);
-    }
-
-    public List<ContentReadDto> findbyUserIdAndTitlePart(UUID userId, String titlePart){
-        User user = userRepository.findById(userId).orElseThrow();
-
-        return contentRepository.findByUserAndTitleContains(user, titlePart);
-    }
-
-    @Transactional
-    public void deleteContent (Long contentId){
-        contentRepository.deleteById(contentId);
-    }
+//    @Transactional
+//    public void changeCategory(Long contentId, Long categoryId) {
+//        Category category = categoryRepo.findByCategoryId(categoryId);
+//        Content content = contentRepository.findById(contentId)
+//                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+//
+//        content.changeCategory(category);
+//        contentRepository.save(content);
+//    }
+//
+//    public List<ContentReadDto> findAll(UUID userId){
+//        User user = userRepository.findById(userId).orElseThrow();;
+//        return contentRepository.findAllByUser(user);
+//    }
+//
+//    public List<ContentReadDto> findbyUserIdAndTitlePart(UUID userId, String titlePart){
+//        User user = userRepository.findById(userId).orElseThrow();
+//
+//        return contentRepository.findByUserAndTitleContains(user, titlePart);
+//    }
+//
+//    @Transactional
+//    public void deleteContent (Long contentId){
+//        contentRepository.deleteById(contentId);
+//    }
 }

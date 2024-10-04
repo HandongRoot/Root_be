@@ -33,6 +33,11 @@ public class CategoryService {
         categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0));
     }
 
+    public Category findById(Long id) {
+        return categoryRepo.findById(id).orElse(null);
+
+    }
+
     public List<CategoryReadDto> findAll(UUID userId) {
         log.info("\uD83D\uDCCD Find All Category");
 
