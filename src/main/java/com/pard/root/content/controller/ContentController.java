@@ -22,7 +22,7 @@ public class ContentController {
     }
 
 
-    @PostMapping("/save/{userId}/{categoryId}")
+    @PostMapping("/{userId}/{categoryId}")
     public ResponseEntity<String> saveContent(@PathVariable Long categoryId, @PathVariable UUID userId, @RequestBody ContentCreateDto dto) {
         try {
             contentService.saveContent(categoryId, userId, dto);
@@ -35,6 +35,16 @@ public class ContentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
+
+    @GetMapping("/{userId}/{categoryId}")
+    public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @PathVariable UUID userId) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(contentService.findByCategoryId(categoryId, userId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
 
 //    @PatchMapping("/change/{contentId}/{afterCategoryId}")
 //    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
