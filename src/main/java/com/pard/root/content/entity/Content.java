@@ -3,6 +3,7 @@ package com.pard.root.content.entity;
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.user.entity.User;
+import com.pard.root.utility.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Content {
+public class Content extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

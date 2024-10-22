@@ -56,10 +56,13 @@ public class ContentService {
         else throw new AccessDeniedException("User does not have access to this category.");
     }
 
-//    public List<ContentReadDto> findAll(UUID userId){
-//        User user = userService.findById(userId);
-//        return contentRepository.findAllByUser(user);
-//    }
+    public List<ContentReadDto> findAll(UUID userId){
+        User user = userService.findById(userId);
+        List<Content> contents = contentRepository.findAllByUser(user);
+        return contents.stream()
+                .map(ContentReadDto::new)
+                .toList();
+    }
 
     private boolean checkToUserId(UUID userId, Category category) {
         UUID userIdInCategory = category.getUser().getId();
