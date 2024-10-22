@@ -54,6 +54,16 @@ public class ContentController {
         }
     }
 
+    @PatchMapping("/change/{contentId}/{afterCategoryId}")
+    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
+        try {
+            contentService.changeCategory(contentId, afterCategoryId);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+    
     @DeleteMapping("/{userId}/{contentId}")
     public ResponseEntity<String> deleteContent(@PathVariable UUID userId, @PathVariable Long contentId) {
         try {
@@ -64,24 +74,4 @@ public class ContentController {
         }
     }
 
-//    @PatchMapping("/change/{contentId}/{afterCategoryId}")
-//    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
-//        try {
-//            contentService.changeCategory(contentId, afterCategoryId);
-//            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-//        }
-//    }
-//
-//    @DeleteMapping("/delete/{contentId}")
-//    public ResponseEntity<?> deleteContent(@PathVariable Long contentId) {
-//        try {
-//            contentService.deleteContent(contentId);
-//            return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
-//        }
-//        catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
-//        }
-//    }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -59,6 +60,30 @@ public class ContentService {
                 .toList();
     }
 
+    @Transactional
+    public void changeCategory(Long contentId, Long categoryId) {
+
+        Category category = categoryService.findById(categoryId);
+        if (category == null) {
+            throw new RuntimeException("Category not found with id: " + categoryId);
+        }
+
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+
+        if (content.getCategory() != null && content.getCategory().getId().equals(categoryId)) {
+            throw new IllegalArgumentException("Content is already in the selected category.");
+        }
+
+        if(checkToUserId(content.getUser().getId(), category.getUser().getId())){
+            categoryService.decrementContentCount(Objects.requireNonNull(content.getCategory()).getId());
+            content.changeCategory(category);
+            categoryService.incrementContentCount(categoryId);
+            contentRepository.save(content);
+        }
+        else throw new AccessDeniedException("User does not have access to this category.");
+    }
+
     public void deleteContent(Long contentId, UUID userId){
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("Content not found for id: " + contentId));
@@ -74,25 +99,4 @@ public class ContentService {
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
         return userId.equals(comparisonId);
     }
-//    @Transactional
-//    public void changeCategory(Long contentId, Long categoryId) {
-//        Category category = categoryRepo.findByCategoryId(categoryId);
-//        Content content = contentRepository.findById(contentId)
-//                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
-//
-//        content.changeCategory(category);
-//        contentRepository.save(content);
-//    }
-//
-//
-//    public List<ContentReadDto> findbyUserIdAndTitlePart(UUID userId, String titlePart){
-//        User user = userRepository.findById(userId).orElseThrow();
-//
-//        return contentRepository.findByUserAndTitleContains(user, titlePart);
-//    }
-//
-//    @Transactional
-//    public void deleteContent (Long contentId){
-//        contentRepository.deleteById(contentId);
-//    }
 }
