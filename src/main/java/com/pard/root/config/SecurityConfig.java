@@ -18,8 +18,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-//
 //    @Value("${root.server.domain}")
 //    private String domain;
 //
@@ -53,24 +51,35 @@ public class SecurityConfig {
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(au -> au
-//                        .requestMatchers("*").permitAll()
+                        .requestMatchers("/**").permitAll()
                         .anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
 
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.addAllowedOrigin("*");
+//        configuration.addAllowedHeader("*");
+//        configuration.addAllowedMethod("GET");
+//        configuration.addAllowedMethod("POST");
+//        configuration.addAllowedMethod("PATCH");
+//        configuration.addAllowedMethod("DELETE");
+////        configuration.setAllowCredentials(true);
+////        configuration.setMaxAge(3600L); //preflight 결과를 1시간동안 캐시에 저장
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("*");
         configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("GET");
-        configuration.addAllowedMethod("POST");
-        configuration.addAllowedMethod("PATCH");
-        configuration.addAllowedMethod("DELETE");
-//        configuration.setAllowCredentials(true);
-//        configuration.setMaxAge(3600L); //preflight 결과를 1시간동안 캐시에 저장
+        configuration.addAllowedMethod("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

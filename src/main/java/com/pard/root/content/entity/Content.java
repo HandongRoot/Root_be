@@ -1,8 +1,10 @@
 package com.pard.root.content.entity;
 
 import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.user.entity.User;
+import com.pard.root.utility.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Content {
+public class Content extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +35,7 @@ public class Content {
 
     @Lob
     @Column(nullable = false, name = "thumbnail", columnDefinition = "TEXT")
-    private String pictureUrl;
+    private String image;
 
     @Lob
     @Column(nullable = false, name = "linked_url", columnDefinition = "TEXT")
@@ -44,13 +46,17 @@ public class Content {
                 .category(category)
                 .user(user)
                 .title(dto.getTitle())
-                .pictureUrl(dto.getPictureUrl())
+                .image(dto.getImage())
                 .linkedUrl(dto.getLinkedUrl())
                 .build();
     }
 
     public void changeCategory(Category category) {
         this.category = category;
+    }
+
+    public void updateTitle(ContentUpdateDto dto) {
+        this.title = dto.getTitle();
     }
 
     public void changeUser(User user) {
