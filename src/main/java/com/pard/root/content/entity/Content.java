@@ -1,6 +1,7 @@
 package com.pard.root.content.entity;
 
 import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.user.entity.User;
 import com.pard.root.utility.BaseTimeEntity;
@@ -52,6 +53,10 @@ public class Content extends BaseTimeEntity {
 
     public void changeCategory(Category category) {
         this.category = category;
+    }
+
+    public void updateTitle(ContentUpdateDto dto) {
+        this.title = dto.getTitle();
     }
 
     public void changeUser(User user) {

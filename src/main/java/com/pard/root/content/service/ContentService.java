@@ -2,6 +2,7 @@ package com.pard.root.content.service;
 
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentReadDto;
+import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.entity.Content;
 import com.pard.root.content.repo.ContentRepository;
 import com.pard.root.folder.entity.Category;
@@ -82,6 +83,17 @@ public class ContentService {
             contentRepository.save(content);
         }
         else throw new AccessDeniedException("User does not have access to this category.");
+    }
+
+    @Transactional
+    public void updateTitle(UUID userId,Long contentId, ContentUpdateDto dto) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+
+        if (checkToUserId(userId, content.getUser().getId())){
+            content.updateTitle(dto);
+            contentRepository.save(content);
+        }
     }
 
     public void deleteContent(Long contentId, UUID userId){

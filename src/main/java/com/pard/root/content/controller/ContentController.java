@@ -63,7 +63,17 @@ public class ContentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
-    
+
+    @PatchMapping("/update/title/{userId}/{contentId}")
+    public ResponseEntity<?> updateTitle(@PathVariable UUID userId, @PathVariable Long contentId, @RequestBody ContentUpdateDto dto) {
+        try {
+            contentService.updateTitle(userId, contentId, dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Content updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
     @DeleteMapping("/{userId}/{contentId}")
     public ResponseEntity<String> deleteContent(@PathVariable UUID userId, @PathVariable Long contentId) {
         try {
