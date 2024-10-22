@@ -47,4 +47,11 @@ public class Category extends BaseTimeEntity {
         }
         this.countContents++;
     }
+
+    public void decrementCountContents() {
+        if (this.countContents == null || this.countContents <= 0) {
+            this.countContents = 0;
+        }
+        this.countContents--;
+    }
 }

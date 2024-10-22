@@ -62,4 +62,13 @@ public class CategoryService {
         category.incrementCountContents();
         categoryRepo.save(category);
     }
+
+    @Transactional
+    public void decrementContentCount(Long categoryId) {
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        category.decrementCountContents();
+        categoryRepo.save(category);
+    }
 }

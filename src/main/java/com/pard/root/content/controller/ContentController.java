@@ -49,12 +49,20 @@ public class ContentController {
     public ResponseEntity<?> findAll(@PathVariable UUID userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findAll(userId));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 
+    @DeleteMapping("/{userId}/{contentId}")
+    public ResponseEntity<String> deleteContent(@PathVariable UUID userId, @PathVariable Long contentId) {
+        try {
+            contentService.deleteContent(contentId, userId);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Content deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
 
 //    @PatchMapping("/change/{contentId}/{afterCategoryId}")
 //    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
