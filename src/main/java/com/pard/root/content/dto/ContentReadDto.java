@@ -10,13 +10,13 @@ import lombok.Setter;
 public class ContentReadDto {
     private Long id;
     private String title;
-    private String pictureUrl;
+    private String image;
     private String linkedUrl;
 
     public ContentReadDto(Content content) {
         this.id = content.getId();
         this.title = content.getTitle();
-        this.pictureUrl = content.getPictureUrl();
+        this.image = content.getImage();
         this.linkedUrl = content.getLinkedUrl();
     }
 }

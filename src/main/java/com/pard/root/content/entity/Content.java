@@ -33,7 +33,7 @@ public class Content {
 
     @Lob
     @Column(nullable = false, name = "thumbnail", columnDefinition = "TEXT")
-    private String pictureUrl;
+    private String image;
 
     @Lob
     @Column(nullable = false, name = "linked_url", columnDefinition = "TEXT")
@@ -44,7 +44,7 @@ public class Content {
                 .category(category)
                 .user(user)
                 .title(dto.getTitle())
-                .pictureUrl(dto.getPictureUrl())
+                .image(dto.getImage())
                 .linkedUrl(dto.getLinkedUrl())
                 .build();
     }

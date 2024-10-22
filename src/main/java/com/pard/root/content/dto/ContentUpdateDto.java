@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
 public class ContentUpdateDto {
     private Long id;
     private String title;
-    private String picture;
+    private String image;
     private String linkedUrl;
 }

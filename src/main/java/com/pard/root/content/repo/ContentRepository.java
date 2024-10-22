@@ -14,13 +14,13 @@ import java.util.UUID;
 @Repository
 public interface ContentRepository extends JpaRepository<Content, Long> {
 
-    @Query("SELECT ContentReadDto(c.id, c.title, c.pictureUrl, c.linkedUrl) " +
+    @Query("SELECT ContentReadDto(c.id, c.title, c.image, c.linkedUrl) " +
             "FROM Content c " +
             "WHERE c.user = :user " +
             "ORDER BY c.id DESC")
     List<ContentReadDto> findAllByUser(@Param("user") User user);
 
-    @Query("SELECT ContentReadDto(c.id, c.title, c.pictureUrl, c.linkedUrl) " +
+    @Query("SELECT ContentReadDto(c.id, c.title, c.image, c.linkedUrl) " +
             "FROM Content c " +
             "WHERE c.user = :user AND c.title LIKE %:titlePart% " +
             "ORDER BY c.id DESC")
