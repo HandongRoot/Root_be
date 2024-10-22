@@ -42,7 +42,7 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/findAll/{userId}")
+    @GetMapping("/{userId}/findAll")
     public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
@@ -55,10 +55,10 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/search/{userId}/{titlePart}")
-    public ResponseEntity<?> searchCategory(@PathVariable String titlePart, @PathVariable UUID userId) {
+    @GetMapping("/{userId}/search")
+    public ResponseEntity<?> searchCategory(@RequestParam String keyword, @PathVariable UUID userId) {
         try {
-            List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, titlePart);
+            List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, keyword);
             return ResponseEntity.ok(readDto);
         }
         catch (Exception e) {
