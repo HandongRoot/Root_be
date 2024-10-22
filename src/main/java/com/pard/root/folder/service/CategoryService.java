@@ -4,7 +4,6 @@ import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.repo.CategoryRepo;
-import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
 import jakarta.transaction.Transactional;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -34,8 +32,7 @@ public class CategoryService {
     }
 
     public Category findById(Long id) {
-        return categoryRepo.findById(id).orElse(null);
-
+        return categoryRepo.findById(id).orElseThrow();
     }
 
     public List<CategoryReadDto> findAll(UUID userId) {
@@ -55,5 +52,14 @@ public class CategoryService {
         return categories.stream()
                 .map(CategoryReadDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void incrementContentCount(Long categoryId) {
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        category.incrementCountContents();
+        categoryRepo.save(category);
     }
 }

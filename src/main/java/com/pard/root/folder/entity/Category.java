@@ -41,17 +41,10 @@ public class Category extends BaseTimeEntity {
 
     }
 
-    public static Category updateCountContents(Category category, Integer countContents) {
-        if (category == null) {
-            throw new IllegalArgumentException("Category cannot be null");
+    public void incrementCountContents() {
+        if (this.countContents == null) {
+            this.countContents = 0;
         }
-
-        if (countContents == null || countContents < 0) {
-            throw new IllegalArgumentException("countContents must be a non-negative integer");
-        }
-
-        return Category.builder()
-                .countContents(countContents)
-                .build();
+        this.countContents++;
     }
 }

@@ -4,6 +4,8 @@ import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.entity.Content;
 import com.pard.root.content.repo.ContentRepository;
+import com.pard.root.folder.dto.CategoryCreateDto;
+import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.folder.service.CategoryService;
@@ -13,10 +15,12 @@ import com.pard.root.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,8 +40,31 @@ public class ContentService {
 
 
         contentRepository.save(Content.toEntity(category, user, dto));
+        categoryService.incrementContentCount(categoryId);
     }
 
+    public List<ContentReadDto> findByCategoryId(Long categoryId, UUID userId ){
+        Category category = categoryService.findById(categoryId);
+
+        if(checkToUserId(userId, category)){
+            User user = userService.findById(userId);
+            List<Content> contents = contentRepository.findContentsByUserAndCategory(user, category);
+            return contents.stream()
+                    .map(ContentReadDto::new)
+                    .toList();
+        }
+        else throw new AccessDeniedException("User does not have access to this category.");
+    }
+
+//    public List<ContentReadDto> findAll(UUID userId){
+//        User user = userService.findById(userId);
+//        return contentRepository.findAllByUser(user);
+//    }
+
+    private boolean checkToUserId(UUID userId, Category category) {
+        UUID userIdInCategory = category.getUser().getId();
+        return userId.equals(userIdInCategory);
+    }
 //    @Transactional
 //    public void changeCategory(Long contentId, Long categoryId) {
 //        Category category = categoryRepo.findByCategoryId(categoryId);
@@ -48,10 +75,6 @@ public class ContentService {
 //        contentRepository.save(content);
 //    }
 //
-//    public List<ContentReadDto> findAll(UUID userId){
-//        User user = userRepository.findById(userId).orElseThrow();;
-//        return contentRepository.findAllByUser(user);
-//    }
 //
 //    public List<ContentReadDto> findbyUserIdAndTitlePart(UUID userId, String titlePart){
 //        User user = userRepository.findById(userId).orElseThrow();
