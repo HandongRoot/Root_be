@@ -3,6 +3,7 @@ package com.pard.root.folder.controller;
 
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
+import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.folder.service.CategoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -64,6 +65,16 @@ public class CategoryController {
             log.error("An unexpected error occurred while getting category", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to get categories");
         }
+    }
 
+    @PatchMapping("/update/title/{userId}/{categoryId}")
+    public ResponseEntity<?> updateCategory(@PathVariable UUID userId, @PathVariable Long categoryId, @RequestBody CategoryUpdateDto dto) {
+        try {
+            categoryService.updateTitle(categoryId, userId, dto);
+            return ResponseEntity.ok("Category updated successfully");
+        } catch (Exception e) {
+            log.error("An unexpected error occurred while updating category", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update category");
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.pard.root.content.repo.ContentRepository;
 import com.pard.root.content.service.ContentService;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
+import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.user.entity.User;
@@ -70,6 +71,17 @@ public class CategoryService {
         return categories.stream()
                 .map(CategoryReadDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateTitle(Long categoryId, UUID userId, CategoryUpdateDto dto) {
+        Category category = categoryRepo.findById(categoryId).orElseThrow();
+        if(category.getUser().getId().equals(userId)) {
+            category.updateTitle(dto);
+        }
+        else {
+            throw new RuntimeException("You are not the owner of this category.");
+        }
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package com.pard.root.folder.entity;
 
 import com.pard.root.folder.dto.CategoryCreateDto;
+import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.utility.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -39,6 +40,10 @@ public class Category extends BaseTimeEntity {
                 .countContents(countContents)
                 .build();
 
+    }
+
+    public void updateTitle(CategoryUpdateDto updateDto) {
+        this.title = updateDto.getTitle();
     }
 
     public void incrementCountContents() {
