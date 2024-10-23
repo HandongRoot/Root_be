@@ -20,7 +20,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {

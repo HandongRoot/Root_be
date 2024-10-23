@@ -42,7 +42,7 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/{userId}/findAll")
+    @GetMapping("/findAll/{userId}")
     public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
@@ -54,8 +54,7 @@ public class CategoryController {
         }
     }
 
-
-    @GetMapping("/{userId}/search")
+    @GetMapping("/search/{userId}")
     public ResponseEntity<?> searchCategory(@RequestParam String keyword, @PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, keyword);
@@ -63,7 +62,7 @@ public class CategoryController {
         }
         catch (Exception e) {
             log.error("An unexpected error occurred while getting category", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to get all categories");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to get categories");
         }
 
     }
