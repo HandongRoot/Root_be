@@ -5,7 +5,9 @@ import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.entity.Content;
 import com.pard.root.content.repo.ContentRepository;
+import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
+import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
@@ -28,7 +30,6 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final CategoryService categoryService;
     private final UserService userService;
-
 
 
     public void saveContent(Long categoryId, UUID userId,ContentCreateDto dto){
@@ -69,7 +70,11 @@ public class ContentService {
             return new ArrayList<>();
         } else {
             return contents.stream()
-                    .map(ContentReadDto::new)
+                    .map(content -> {
+                        Category category = content.getCategory();
+                        CategoryReadDto dto = new CategoryReadDto(category);
+                        return new ContentReadDto(content, dto);
+                    })
                     .toList();
         }
     }
