@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -58,6 +59,19 @@ public class ContentService {
         return contents.stream()
                 .map(ContentReadDto::new)
                 .toList();
+    }
+
+    public List<ContentReadDto> findByUserIdAndTitleContains (UUID userId, String title){
+        User user = userService.findById(userId);
+        List<Content> contents = contentRepository.findByUserAndTitleContains(user, title);
+
+        if (contents.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return contents.stream()
+                    .map(ContentReadDto::new)
+                    .toList();
+        }
     }
 
     @Transactional

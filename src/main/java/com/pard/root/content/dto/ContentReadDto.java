@@ -16,6 +16,7 @@ public class ContentReadDto {
     private String linkedUrl;
     private LocalDateTime createdDate;
 
+
     public ContentReadDto(Content content) {
         this.id = content.getId();
         this.title = content.getTitle();
