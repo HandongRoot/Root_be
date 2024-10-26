@@ -49,9 +49,7 @@ public class CategoryService {
         List<Category> categories = categoryRepo.findByUserId(userId);
 
         return categories.stream()
-                .map(category -> {
-                    return new CategoryReadDto(category, findByCategory(category));
-                })
+                .map(category -> new CategoryReadDto(category, findByCategory(category)))
                 .collect(Collectors.toList());
     }
 
@@ -101,4 +99,15 @@ public class CategoryService {
         category.decrementCountContents();
         categoryRepo.save(category);
     }
+
+    public void deleteCategory(Long categoryId, UUID userId) {
+        Category category = findById(categoryId);
+
+        if(category.getUser().getId().equals(userId)) {
+            categoryRepo.deleteById(categoryId);
+        } else {
+            throw new RuntimeException("You are not the owner of this category.");
+        }
+    }
+//    public v
 }

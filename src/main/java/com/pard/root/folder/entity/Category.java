@@ -1,5 +1,6 @@
 package com.pard.root.folder.entity;
 
+import com.pard.root.content.entity.Content;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.user.entity.User;
@@ -10,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -32,6 +34,9 @@ public class Category extends BaseTimeEntity {
 
     @Column(name = "count_contents")
     private Integer countContents;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Content> contents;
 
     public static Category toEntity(User user, String title, Integer countContents) {
         return Category.builder()

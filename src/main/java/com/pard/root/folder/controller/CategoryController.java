@@ -77,4 +77,15 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update category");
         }
     }
+
+    @DeleteMapping("/delete/{userId}/{categoryId}")
+    public ResponseEntity<?> deleteCategory(@PathVariable UUID userId, @PathVariable Long categoryId) {
+        try {
+            categoryService.deleteCategory(categoryId, userId);
+            return ResponseEntity.ok("Category deleted successfully");
+        } catch (Exception e) {
+            log.error("An unexpected error occurred while deleting category", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete category");
+        }
+    }
 }
