@@ -5,7 +5,9 @@ import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.entity.Content;
 import com.pard.root.content.repo.ContentRepository;
+import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
+import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
@@ -15,12 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
@@ -28,7 +30,6 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final CategoryService categoryService;
     private final UserService userService;
-
 
 
     public void saveContent(Long categoryId, UUID userId,ContentCreateDto dto){
@@ -59,6 +60,23 @@ public class ContentService {
         return contents.stream()
                 .map(ContentReadDto::new)
                 .toList();
+    }
+
+    public List<ContentReadDto> findByUserIdAndTitleContains (UUID userId, String title){
+        User user = userService.findById(userId);
+        List<Content> contents = contentRepository.findByUserAndTitleContains(user, title);
+
+        if (contents.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return contents.stream()
+                    .map(content -> {
+                        Category category = content.getCategory();
+                        CategoryReadDto dto = new CategoryReadDto(category);
+                        return new ContentReadDto(content, dto);
+                    })
+                    .toList();
+        }
     }
 
     @Transactional

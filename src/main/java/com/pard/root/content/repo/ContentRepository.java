@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,4 +33,10 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
             "WHERE c.user = :user AND c.category = :category " +
             "ORDER BY c.id DESC ")
     List<Content> findContentsByUserAndCategory(@Param("user") User user, @Param("category") Category category);
+
+    @Query("SELECT c " +
+            "FROM Content c " +
+            "WHERE c.category = :category " +
+            "ORDER BY c.id DESC ")
+    List<Content> findByCategory(@Param("category") Category category, Pageable pageable);
 }

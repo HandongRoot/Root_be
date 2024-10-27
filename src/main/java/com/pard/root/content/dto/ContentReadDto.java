@@ -2,6 +2,7 @@ package com.pard.root.content.dto;
 
 
 import com.pard.root.content.entity.Content;
+import com.pard.root.folder.dto.CategoryReadDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ public class ContentReadDto {
     private String image;
     private String linkedUrl;
     private LocalDateTime createdDate;
+    private CategoryReadDto category;
 
     public ContentReadDto(Content content) {
         this.id = content.getId();
@@ -22,5 +24,13 @@ public class ContentReadDto {
         this.image = content.getImage();
         this.linkedUrl = content.getLinkedUrl();
         this.createdDate = content.getCreatedDate();
+    }
+
+    public ContentReadDto(Content content, CategoryReadDto category) {
+        this.id = content.getId();
+        this.title = content.getTitle();
+        this.image = content.getImage();
+        this.linkedUrl = content.getLinkedUrl();
+        this.category = category;
     }
 }
