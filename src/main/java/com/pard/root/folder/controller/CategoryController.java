@@ -55,10 +55,10 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/search/{userId}")
-    public ResponseEntity<?> searchCategory(@RequestParam String keyword, @PathVariable UUID userId) {
+    @GetMapping("/search/{userId}/title")
+    public ResponseEntity<?> searchCategory(@RequestParam String title, @PathVariable UUID userId) {
         try {
-            List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, keyword);
+            List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, title);
             return ResponseEntity.ok(readDto);
         }
         catch (Exception e) {
