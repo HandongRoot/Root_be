@@ -5,6 +5,7 @@ import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.folder.service.CategoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +27,11 @@ public class CategoryController {
 
 
     @PostMapping("/title")
+    @Operation(summary = "Category 등록 기능", description = "해당 유저가 Category 생성")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryCreateDto dto) {
         try {
-            // 카테고리 저장 로직
             categoryService.save(dto);
-            return ResponseEntity.ok("Category saved successfully"); // 성공 시 OK(200) 반환
+            return ResponseEntity.ok("Category saved successfully");
 //        } catch (CategoryAlreadyExistsException e) {
 //            log.error("Category already exists: {}", dto.getTitle(), e);
 //            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category already exists");
@@ -44,6 +45,7 @@ public class CategoryController {
     }
 
     @GetMapping("/findAll/{userId}")
+    @Operation(summary = "Category 찾기 기능 (모든 것)", description = "해당 유저가 가지고 있는 Category를 다 찾기")
     public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
@@ -56,6 +58,7 @@ public class CategoryController {
     }
 
     @GetMapping("/search/{userId}/title")
+    @Operation(summary = "Category 검색 기능", description = "Param(?title={data})해당 유저가 같고 있는 Category를 찾는 기능입니다.")
     public ResponseEntity<?> searchCategory(@RequestParam String title, @PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, title);
@@ -68,6 +71,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/update/title/{userId}/{categoryId}")
+    @Operation(summary = "Category's Title 변경 기능", description = "Category의 Id 값으로 Title을 새롭게 변경하는 기능")
     public ResponseEntity<?> updateCategory(@PathVariable UUID userId, @PathVariable Long categoryId, @RequestBody CategoryUpdateDto dto) {
         try {
             categoryService.updateTitle(categoryId, userId, dto);
@@ -79,6 +83,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{userId}/{categoryId}")
+    @Operation(summary = "Category 삭제 기능", description = "Category 의 Id 값으로 Category 삭제")
     public ResponseEntity<?> deleteCategory(@PathVariable UUID userId, @PathVariable Long categoryId) {
         try {
             categoryService.deleteCategory(categoryId, userId);
