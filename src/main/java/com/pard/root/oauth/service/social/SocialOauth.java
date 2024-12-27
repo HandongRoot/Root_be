@@ -7,7 +7,7 @@ import java.util.Map;
 public interface SocialOauth {
     String getOauthRedirectURL();
     String requestAccessToken(String code);
-
+    Map<String, Object> getUserInfo(String accessToken);
     default SocialLoginType type() {
         if (this instanceof GoogleOauth) {
             return SocialLoginType.GOOGLE;

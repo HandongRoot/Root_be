@@ -5,6 +5,7 @@ import com.pard.root.oauth.service.social.SocialOauth;
 import com.pard.root.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OauthService {
     private final List<SocialOauth> socialOauthList;
     private final HttpServletResponse response;
@@ -30,9 +32,10 @@ public class OauthService {
 
     public String requestAccessToken(SocialLoginType socialLoginType, String code) {
         SocialOauth socialOauth = this.findSocialOauthByType(socialLoginType);
-
         String accessToken = socialOauth.requestAccessToken(code);
-        return accessToken;
+        Map<String, Object> userInfo = socialOauth.getUserInfo(accessToken);
+        userService.saveUser(userInfo);
+        return "로그인 성공!";
     }
 
     private SocialOauth findSocialOauthByType(SocialLoginType socialLoginType) {
