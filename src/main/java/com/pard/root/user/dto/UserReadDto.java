@@ -16,12 +16,16 @@ public class UserReadDto {
     private String name;
     private String email;
     private String pictureUrl;
+    private String provider;
+    private String providerId;
 
     public UserReadDto(User user) {
         this.id = user.getId();
         this.name = user.getName();
         this.email = user.getEmail();
         this.pictureUrl = user.getPictureUrl();
+        this.provider = user.getProvider();
+        this.providerId = user.getProviderId();
     }
 
 }
