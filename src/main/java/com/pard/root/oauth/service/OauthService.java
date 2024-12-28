@@ -2,6 +2,7 @@ package com.pard.root.oauth.service;
 
 import com.pard.root.oauth.helper.constants.SocialLoginType;
 import com.pard.root.oauth.service.social.SocialOauth;
+import com.pard.root.token.service.TokenService;
 import com.pard.root.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class OauthService {
     private final List<SocialOauth> socialOauthList;
     private final HttpServletResponse response;
     private final UserService userService;
+    private final TokenService tokenService;
 
     public void request(SocialLoginType socialLoginType) {
         SocialOauth socialOauth = this.findSocialOauthByType(socialLoginType);
@@ -32,10 +34,18 @@ public class OauthService {
 
     public String requestAccessToken(SocialLoginType socialLoginType, String code) {
         SocialOauth socialOauth = this.findSocialOauthByType(socialLoginType);
-        String accessToken = socialOauth.requestAccessToken(code);
-        Map<String, Object> userInfo = socialOauth.getUserInfo(accessToken);
-        userService.saveUser(userInfo);
-        return "로그인 성공!";
+        Map<String, Object> token = socialOauth.requestAccessToken(code);
+        Map<String, Object> userInfo = socialOauth.getUserInfo(token);
+
+        String providerId = (String) userInfo.get("provider_id");
+        if (!userService.existsByProviderId(providerId)) {
+            userService.saveUser(userInfo);
+        }
+        log.info((String) userInfo.get("sub"));
+        log.info((String) token.get("refresh_token"));
+        tokenService.saveOrUpdateRefreshToken((String) userInfo.get("sub"), (String) token.get("refresh_token"));
+
+        return token.get("access_token").toString();
     }
 
     private SocialOauth findSocialOauthByType(SocialLoginType socialLoginType) {
