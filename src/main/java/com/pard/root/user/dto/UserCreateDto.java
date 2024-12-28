@@ -9,4 +9,6 @@ public class UserCreateDto {
     private String name;
     private String pictureUrl;
     private String email;
+    private String provider;
+    private String providerId;
 }
