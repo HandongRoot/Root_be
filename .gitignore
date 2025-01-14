@@ -220,5 +220,5 @@ out/
 secret/
 src/main/resources/
 
-### Config ###
-src/main/java/pard/root/config/*.java
+## Config ##
+src/main/java/com/pard/root/config/*.java
