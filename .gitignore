@@ -219,3 +219,6 @@ out/
 *.properties
 secret/
 src/main/resources/
+
+### Config ###
+src/main/java/pard/root/config/*.java
