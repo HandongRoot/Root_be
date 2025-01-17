@@ -23,7 +23,7 @@ public class Content extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "category_id")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,6 +61,10 @@ public class Content extends BaseTimeEntity {
 
     public void changeUser(User user) {
         this.user = user;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
 

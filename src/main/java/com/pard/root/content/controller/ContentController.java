@@ -23,11 +23,11 @@ public class ContentController {
     }
 
 
-    @PostMapping("/{userId}/{categoryId}")
+    @PostMapping("/{userId}")
     @Operation(summary = "content 등록 기능", description = "해당 유저가 category 속에 content 생성")
-    public ResponseEntity<String> saveContent(@PathVariable Long categoryId, @PathVariable UUID userId, @RequestBody ContentCreateDto dto) {
+    public ResponseEntity<String> saveContent(@PathVariable UUID userId, @RequestBody ContentCreateDto dto) {
         try {
-            contentService.saveContent(categoryId, userId, dto);
+            contentService.saveContent(userId, dto);
             return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
 //        } catch (ResourceNotFoundException e) {
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

@@ -32,13 +32,9 @@ public class ContentService {
     private final UserService userService;
 
 
-    public void saveContent(Long categoryId, UUID userId,ContentCreateDto dto){
-        Category category = categoryService.findById(categoryId);
+    public void saveContent(UUID userId, ContentCreateDto dto){
         User user = userService.findById(userId);
-
-
-        contentRepository.save(Content.toEntity(category, user, dto));
-        categoryService.incrementContentCount(categoryId);
+        contentRepository.save(Content.toEntity(null, user, dto));
     }
 
     public List<ContentReadDto> findByCategoryId(Long categoryId, UUID userId ){
