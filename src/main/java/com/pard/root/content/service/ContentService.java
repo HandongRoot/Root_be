@@ -66,7 +66,7 @@ public class ContentService {
             return contents.stream()
                     .map(content -> {
                         Category category = content.getCategory();
-                        CategoryReadDto dto = new CategoryReadDto(category);
+                        CategoryReadDto dto = (category != null) ? new CategoryReadDto(category) : null;
                         return new ContentReadDto(content, dto);
                     })
                     .toList();
