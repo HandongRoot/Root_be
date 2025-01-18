@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/content")
+@RequestMapping("/api/v1/content")
 public class ContentController {
     private final ContentService contentService;
 
