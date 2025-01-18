@@ -1,6 +1,7 @@
 package com.pard.root.content.controller;
 
 import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/content")
+@RequestMapping("/api/v1/content")
 public class ContentController {
     private final ContentService contentService;
 
@@ -23,11 +24,11 @@ public class ContentController {
     }
 
 
-    @PostMapping("/{userId}/{categoryId}")
+    @PostMapping("/{userId}")
     @Operation(summary = "content 등록 기능", description = "해당 유저가 category 속에 content 생성")
-    public ResponseEntity<String> saveContent(@PathVariable Long categoryId, @PathVariable UUID userId, @RequestBody ContentCreateDto dto) {
+    public ResponseEntity<String> saveContent(@PathVariable UUID userId, @RequestBody ContentCreateDto dto) {
         try {
-            contentService.saveContent(categoryId, userId, dto);
+            contentService.saveContent(userId, dto);
             return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
 //        } catch (ResourceNotFoundException e) {
 //            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -38,8 +39,8 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/{userId}/{categoryId}")
-    @Operation(summary = "Contents 찾기 (Category 마다) 기능", description = "해당 유저의 Category 속에 담겨있는 Content를 불러옮")
+    @GetMapping("/find/{userId}/{categoryId}")
+    @Operation(summary = "Category 내에서 Contents 불러오기 기능", description = "해당 유저의 Category 속에 담겨있는 Content를 불러오기")
     public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @PathVariable UUID userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findByCategoryId(categoryId, userId));
@@ -49,7 +50,7 @@ public class ContentController {
     }
 
     @GetMapping("/findAll/{userId}")
-    @Operation(summary = "Contents 찾기 (모든 것) 기능", description = "해당 유저의 모든 Contents 를 찾는다.")
+    @Operation(summary = "전체 Contents 불러오기", description = "해당 유저의 모든 Contents 를 불러온다.")
     public ResponseEntity<?> findAll(@PathVariable UUID userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findAll(userId));
@@ -58,8 +59,8 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/search/{userId}/title")
-    @Operation(summary = "Content 검색 기능", description = "Param(?title={data}) 값으로 해당 유저의 contents 를 탐색")
+    @GetMapping("/search/{userId}")
+    @Operation(summary = "특정 Content 검색 기능", description = "Param({userId}?title={data}) 값으로 해당 유저의 contents 를 검색한다.")
     public ResponseEntity<?> findByUserIdAndTitleContains(@PathVariable UUID userId, @RequestParam String title) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findByUserIdAndTitleContains(userId, title));
@@ -68,11 +69,11 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/change/{contentId}/{afterCategoryId}")
+    @PatchMapping("/change/{categoryId}")
     @Operation(summary = "Content 의 Category 변경 기능", description = "해당 Content가 속한 Category(from)에서 afterCategoryId(to)를 받아 그 category로 변경.")
-    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
+    public ResponseEntity<?> changeCategory(@RequestBody Long[] contentIds, @PathVariable Long categoryId) {
         try {
-            contentService.changeCategory(contentId, afterCategoryId);
+            contentService.changeCategory(contentIds, categoryId);
             return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");

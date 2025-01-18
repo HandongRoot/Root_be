@@ -16,7 +16,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/category")
+@RequestMapping("/api/v1/category")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -26,7 +26,7 @@ public class CategoryController {
     }
 
 
-    @PostMapping("/title")
+    @PostMapping("")
     @Operation(summary = "Category 등록 기능", description = "해당 유저가 Category 생성")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryCreateDto dto) {
         try {
@@ -45,7 +45,7 @@ public class CategoryController {
     }
 
     @GetMapping("/findAll/{userId}")
-    @Operation(summary = "Category 찾기 기능 (모든 것)", description = "해당 유저가 가지고 있는 Category를 다 찾기")
+    @Operation(summary = "Category 보기 (모든 것)", description = "해당 유저가 가지고 있는 Category를 다 보기")
     public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
@@ -57,8 +57,8 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/search/{userId}/title")
-    @Operation(summary = "Category 검색 기능", description = "Param(?title={data})해당 유저가 같고 있는 Category를 찾는 기능입니다.")
+    @GetMapping("/search/{userId}")
+    @Operation(summary = "Category 검색 기능", description = "Param({userId}?title={data})해당 유저가 같고 있는 Category를 찾는 기능입니다.")
     public ResponseEntity<?> searchCategory(@RequestParam String title, @PathVariable UUID userId) {
         try {
             List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, title);
