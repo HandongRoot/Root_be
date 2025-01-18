@@ -38,8 +38,8 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/{userId}/{categoryId}")
-    @Operation(summary = "Contents 찾기 (Category 마다) 기능", description = "해당 유저의 Category 속에 담겨있는 Content를 불러옮")
+    @GetMapping("/find/{userId}/{categoryId}")
+    @Operation(summary = "Category 내에서 Contents 불러오기 기능", description = "해당 유저의 Category 속에 담겨있는 Content를 불러오기")
     public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @PathVariable UUID userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findByCategoryId(categoryId, userId));
@@ -49,7 +49,7 @@ public class ContentController {
     }
 
     @GetMapping("/findAll/{userId}")
-    @Operation(summary = "Contents 찾기 (모든 것) 기능", description = "해당 유저의 모든 Contents 를 찾는다.")
+    @Operation(summary = "전체 Contents 불러오기", description = "해당 유저의 모든 Contents 를 불러온다.")
     public ResponseEntity<?> findAll(@PathVariable UUID userId) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findAll(userId));
@@ -58,8 +58,8 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/search/{userId}/title")
-    @Operation(summary = "Content 검색 기능", description = "Param(?title={data}) 값으로 해당 유저의 contents 를 탐색")
+    @GetMapping("/search/{userId}")
+    @Operation(summary = "특정 Content 검색 기능", description = "Param({userId}?title={data}) 값으로 해당 유저의 contents 를 검색한다.")
     public ResponseEntity<?> findByUserIdAndTitleContains(@PathVariable UUID userId, @RequestParam String title) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findByUserIdAndTitleContains(userId, title));
