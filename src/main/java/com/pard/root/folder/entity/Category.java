@@ -6,12 +6,10 @@ import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.utility.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +26,9 @@ public class Category extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Content> Contents = new ArrayList<>();
 
     @Column(nullable = false , name= "category_name")
     private String title;
@@ -46,7 +47,6 @@ public class Category extends BaseTimeEntity {
                 .build();
 
     }
-
     public void updateTitle(CategoryUpdateDto updateDto) {
         this.title = updateDto.getTitle();
     }

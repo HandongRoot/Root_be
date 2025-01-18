@@ -104,10 +104,10 @@ public class CategoryService {
         Category category = findById(categoryId);
 
         if(category.getUser().getId().equals(userId)) {
+            contentRepo.removeCategoryFromContents(category);
             categoryRepo.deleteById(categoryId);
         } else {
             throw new RuntimeException("You are not the owner of this category.");
         }
     }
-//    public v
 }
