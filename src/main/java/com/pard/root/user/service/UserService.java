@@ -35,4 +35,8 @@ public class UserService {
     public void createUser(UserCreateDto dto){
         User user = userRepository.save(User.toEntity(dto));
     }
+
+    public boolean existsByProviderId(String providerId) {
+        return userRepository.existsByProviderId(providerId);
+    }
 }
