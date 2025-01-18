@@ -1,6 +1,7 @@
 package com.pard.root.content.controller;
 
 import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,11 +69,11 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/change/{contentId}/{afterCategoryId}")
+    @PatchMapping("/change/{categoryId}")
     @Operation(summary = "Content 의 Category 변경 기능", description = "해당 Content가 속한 Category(from)에서 afterCategoryId(to)를 받아 그 category로 변경.")
-    public ResponseEntity<?> changeCategory(@PathVariable Long contentId, @PathVariable Long afterCategoryId) {
+    public ResponseEntity<?> changeCategory(@RequestBody Long[] contentIds, @PathVariable Long categoryId) {
         try {
-            contentService.changeCategory(contentId, afterCategoryId);
+            contentService.changeCategory(contentIds, categoryId);
             return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");

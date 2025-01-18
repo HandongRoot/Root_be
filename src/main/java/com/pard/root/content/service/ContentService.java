@@ -17,10 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,31 +74,39 @@ public class ContentService {
     }
 
     @Transactional
-    public void changeCategory(Long contentId, Long categoryId) {
+    public void changeCategory(Long[] contentIds, Long categoryId) {
 
         Category category = categoryService.findById(categoryId);
         if (category == null) {
             throw new RuntimeException("Category not found with id: " + categoryId);
         }
+        log.info("\uD83D\uDCCD Search Category");
 
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+        List<Content> contents = Arrays.stream(contentIds)
+                .map(id -> contentRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Content not found with id: " + id)))
+                .toList();
+        for (Content content : contents) {
+            if (content.getCategory() != null && content.getCategory().getId().equals(categoryId)) {
+                throw new IllegalArgumentException("Content with ID " + content.getId() + " is already in the selected category.");
+            }
 
-        if (content.getCategory() != null && content.getCategory().getId().equals(categoryId)) {
-            throw new IllegalArgumentException("Content is already in the selected category.");
+            log.info("\uD83D\uDCCD Search content");
+            if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
+                if (content.getCategory() != null) {
+                    categoryService.decrementContentCount(content.getCategory().getId());
+                    log.info("\uD83D\uDCCD Search decrementContentCount");
+                }
+                content.changeCategory(category);
+                categoryService.incrementContentCount(categoryId);
+            } else {
+                throw new AccessDeniedException("User does not have access to content ID " + content.getId());
+            }
         }
-
-        if(checkToUserId(content.getUser().getId(), category.getUser().getId())){
-            categoryService.decrementContentCount(Objects.requireNonNull(content.getCategory()).getId());
-            content.changeCategory(category);
-            categoryService.incrementContentCount(categoryId);
-            contentRepository.save(content);
-        }
-        else throw new AccessDeniedException("User does not have access to this category.");
     }
 
     @Transactional
-    public void updateTitle(UUID userId,Long contentId, ContentUpdateDto dto) {
+    public void updateTitle(UUID userId, Long contentId, ContentUpdateDto dto) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
 
