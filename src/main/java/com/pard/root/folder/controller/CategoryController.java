@@ -26,7 +26,7 @@ public class CategoryController {
     }
 
 
-    @PostMapping("/title")
+    @PostMapping("")
     @Operation(summary = "Category 등록 기능", description = "해당 유저가 Category 생성")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryCreateDto dto) {
         try {

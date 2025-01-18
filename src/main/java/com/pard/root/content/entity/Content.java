@@ -58,13 +58,5 @@ public class Content extends BaseTimeEntity {
     public void updateTitle(ContentUpdateDto dto) {
         this.title = dto.getTitle();
     }
-
-    public void changeUser(User user) {
-        this.user = user;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
 }
 
