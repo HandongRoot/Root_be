@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping(value = "/auth/v1")
+@RequestMapping(value = "/auth")
 @Slf4j
 public class OauthController {
     private final OauthService oauthService;
