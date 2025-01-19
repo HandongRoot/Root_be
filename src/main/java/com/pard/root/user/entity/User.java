@@ -31,7 +31,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_picture_url", nullable = true, unique = false, columnDefinition = "TEXT")  private String pictureUrl;
 
 
-    @Column(nullable = true, unique = true)
+    @Column(nullable = true, unique = false)
     @Email(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "이메일 형식이 잘못되었습니다.")
     private String email;
 

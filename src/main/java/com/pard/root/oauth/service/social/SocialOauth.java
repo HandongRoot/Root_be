@@ -13,8 +13,8 @@ public interface SocialOauth {
             return SocialLoginType.GOOGLE;
 //        } else if (this instanceof NaverOauth) {
 //            return SocialLoginType.NAVER;
-//        } else if (this instanceof KakaoOauth) {
-//            return SocialLoginType.KAKAO;
+        } else if (this instanceof KakaoOauth) {
+            return SocialLoginType.KAKAO;
         } else {
             return null;
         }
