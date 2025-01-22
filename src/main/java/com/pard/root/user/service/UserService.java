@@ -24,7 +24,7 @@ public class UserService {
         userCreateDto.setProvider((String) userInfo.get("provider"));
         userCreateDto.setProviderId((String) userInfo.get("sub"));
 
-        Optional<User> existingUser = userRepository.findByEmail(userCreateDto.getEmail());
+        Optional<User> existingUser = userRepository.findByProviderId(userCreateDto.getProviderId());
         existingUser.orElseGet(() -> userRepository.save(User.toEntity(userCreateDto)));
     }
 
