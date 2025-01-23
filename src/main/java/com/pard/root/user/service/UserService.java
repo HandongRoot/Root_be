@@ -1,6 +1,7 @@
 package com.pard.root.user.service;
 
 import com.pard.root.user.dto.UserCreateDto;
+import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +36,12 @@ public class UserService {
     }
 
     public User findById(UUID id) {
-        return userRepository.findById(id).orElse(null);
+        User user = userRepository.findById(id).orElse(null);
+        return user;
+    }
+
+    public UserReadDto findByUserId(UUID id) {
+        return new UserReadDto(Objects.requireNonNull(userRepository.findById(id).orElse(null)));
     }
 
     public Optional<User> findByProviderId(String providerId) { return userRepository.findByProviderId(providerId); }
