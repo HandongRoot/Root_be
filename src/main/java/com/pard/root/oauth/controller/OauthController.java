@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
@@ -24,8 +26,8 @@ public class OauthController {
     }
 
     @GetMapping(value = "/{socialLoginType}/callback")
-    public String callback(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType,
-                           @RequestParam(name = "code") String code) {
+    public Map<String, Object> callback(@PathVariable(name = "socialLoginType") SocialLoginType socialLoginType,
+                                        @RequestParam(name = "code") String code) {
         log.info(">> 소셜 로그인 API 서버로부터 받은 code :: {}", code);
         return oauthService.requestAccessToken(socialLoginType, code);
     }
