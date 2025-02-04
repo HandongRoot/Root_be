@@ -28,6 +28,8 @@ public class GoogleOauth implements SocialOauth {
     private String GOOGLE_SNS_TOKEN_BASE_URL;
     @Value("${sns.google.userInfo}")
     private String GOOGLE_USER_INFO_BASE_URL;
+    @Value("${spring.security.oauth2.client.registration.google.client-name}")
+    private String GOOGLE_CLIENT_NAME;
 
 
 
@@ -38,6 +40,7 @@ public class GoogleOauth implements SocialOauth {
         params.put("response_type", "code");
         params.put("client_id", GOOGLE_CLIENT_ID);
         params.put("redirect_uri", GOOGLE_CALLBACK_URL);
+        params.put("client_name", GOOGLE_CLIENT_NAME);
         params.putAll(buildCommonOAuthParams());
 
         String parameterString = params.entrySet().stream()

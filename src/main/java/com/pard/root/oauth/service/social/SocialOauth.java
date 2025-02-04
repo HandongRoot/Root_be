@@ -9,11 +9,12 @@ public interface SocialOauth {
     Map<String, Object> requestAccessToken(String code);
     Map<String, Object> getUserInfo(Map<String, Object> token);
     default SocialLoginType type() {
-        if (this instanceof GoogleOauth) {
-            return SocialLoginType.GOOGLE;
+//        if (this instanceof GoogleOauth) {
+//            return SocialLoginType.GOOGLE;
 //        } else if (this instanceof NaverOauth) {
 //            return SocialLoginType.NAVER;
-        } else if (this instanceof KakaoOauth) {
+//        }
+        if (this instanceof KakaoOauth) {
             return SocialLoginType.KAKAO;
         } else {
             return null;
