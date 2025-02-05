@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ContentReadDto {
     private Long id;
     private String title;
-    private String image;
+    private String thumbnail;
     private String linkedUrl;
     private LocalDateTime createdDate;
     private CategoryReadDto category;
@@ -21,7 +21,7 @@ public class ContentReadDto {
     public ContentReadDto(Content content) {
         this.id = content.getId();
         this.title = content.getTitle();
-        this.image = content.getImage();
+        this.thumbnail = content.getThumbnail();
         this.linkedUrl = content.getLinkedUrl();
         this.createdDate = content.getCreatedDate();
     }
@@ -29,7 +29,7 @@ public class ContentReadDto {
     public ContentReadDto(Content content, CategoryReadDto category) {
         this.id = content.getId();
         this.title = content.getTitle();
-        this.image = content.getImage();
+        this.thumbnail = content.getThumbnail();
         this.linkedUrl = content.getLinkedUrl();
         this.category = category;
     }

@@ -35,7 +35,7 @@ public class Content extends BaseTimeEntity {
 
     @Lob
     @Column(nullable = false, name = "thumbnail", columnDefinition = "TEXT")
-    private String image;
+    private String thumbnail;
 
     @Lob
     @Column(nullable = false, name = "linked_url", columnDefinition = "TEXT")
@@ -46,7 +46,7 @@ public class Content extends BaseTimeEntity {
                 .category(category)
                 .user(user)
                 .title(dto.getTitle())
-                .image(dto.getImage())
+                .thumbnail(dto.getThumbnail())
                 .linkedUrl(dto.getLinkedUrl())
                 .build();
     }

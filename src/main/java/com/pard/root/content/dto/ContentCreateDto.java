@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class ContentCreateDto {
     private String title;
-    private String image;
+    private String thumbnail;
     private String linkedUrl;
 }
