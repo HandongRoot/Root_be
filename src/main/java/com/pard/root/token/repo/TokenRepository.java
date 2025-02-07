@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface TokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByProviderId(String providerId);
 
-    boolean existsByRefreshToken(String refreshToken);
+    boolean existsByProviderId(String providerId);
 }
