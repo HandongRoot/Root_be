@@ -2,6 +2,7 @@ package com.pard.root.oauth.service;
 
 import com.pard.root.oauth.helper.constants.SocialLoginType;
 import com.pard.root.oauth.service.social.SocialOauth;
+import com.pard.root.token.component.JwtProvider;
 import com.pard.root.token.service.TokenService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
@@ -24,6 +25,7 @@ public class OauthService {
     private final HttpServletResponse response;
     private final UserService userService;
     private final TokenService tokenService;
+    private final JwtProvider jwtProvider;
 
     public void request(SocialLoginType socialLoginType) {
         SocialOauth socialOauth = this.findSocialOauthByType(socialLoginType);
@@ -45,13 +47,25 @@ public class OauthService {
         if (!userService.existsByProviderId(providerId)) {
             userService.saveUser(userInfo);
         }
+        User user = userService.findByProviderId(providerId).orElseThrow();
+
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("name", user.getName());
+        claims.put("email", user.getEmail());
+
+        String access_token = jwtProvider.generateAccessToken(claims, providerId);
+        String refresh_token = jwtProvider.generateRefreshToken(providerId);
+
+        userInfo.put("refresh_token", refresh_token);
         tokenService.saveOrUpdateRefreshToken(userInfo);
-        UUID userId = userService.findByProviderId(providerId).orElseThrow().getId();
+
 
         Map<String, Object> returnValue = new HashMap<>();
-        returnValue.put("user_id", userId);
-        returnValue.put("access_token", userInfo.get("access_token"));
-        returnValue.put("refresh_token", userInfo.get("refresh_token"));
+        returnValue.put("user_id", user.getId());
+        returnValue.put("access_token", access_token);
+        returnValue.put("refresh_token", refresh_token);
 
         return returnValue;
     }

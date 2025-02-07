@@ -33,8 +33,6 @@ public class GoogleOauth implements SocialOauth {
     @Value("${spring.security.oauth2.client.registration.google.client-name}")
     private String GOOGLE_CLIENT_NAME;
 
-    public final JwtProvider jwtProvider;
-
 
     @Override
     public String getOauthRedirectURL() {
@@ -107,24 +105,13 @@ public class GoogleOauth implements SocialOauth {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
-            
+
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("provider", "google");
             userInfo.put("sub", jsonNode.get("sub").asText());
             userInfo.put("name", jsonNode.get("name").asText());
             userInfo.put("email", jsonNode.get("email").asText());
             userInfo.put("picture", jsonNode.get("picture").asText());
-
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("providerId", jsonNode.get("sub").asText());
-            claims.put("name", jsonNode.get("name").asText());
-            claims.put("email", jsonNode.get("email").asText());
-
-            String access_token = jwtProvider.generateAccessToken(claims, jsonNode.get("sub").asText());
-            String refresh_token = jwtProvider.generateRefreshToken(jsonNode.get("sub").asText());
-
-            userInfo.put("access_token", access_token);
-            userInfo.put("refresh_token", refresh_token);
 
             return userInfo;
         } catch (Exception e) {
