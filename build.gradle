@@ -50,10 +50,9 @@ dependencies {
 //	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.15.2'
 //
 //	// JWT dependencies (use consistent versions)
-	implementation 'io.jsonwebtoken:jjwt:0.11.5'
-//	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-//	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // or 'io.jsonwebtoken:jjwt-gson:0.11.5' for gson support
-
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 //	implementation 'com.google.auth:google-auth-library-oauth2-http:1.7.0'
 //	implementation 'com.google.api-client:google-api-client:1.33.2'
 //	implementation 'com.google.http-client:google-http-client-jackson2:1.39.2'
