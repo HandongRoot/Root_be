@@ -45,13 +45,13 @@ public class OauthService {
         if (!userService.existsByProviderId(providerId)) {
             userService.saveUser(userInfo);
         }
-        tokenService.saveOrUpdateRefreshToken((String) userInfo.get("sub"), (String) token.get("refresh_token"));
-
+        tokenService.saveOrUpdateRefreshToken(userInfo);
         UUID userId = userService.findByProviderId(providerId).orElseThrow().getId();
 
         Map<String, Object> returnValue = new HashMap<>();
         returnValue.put("user_id", userId);
-        returnValue.put("access_token", token.get("access_token"));
+        returnValue.put("access_token", userInfo.get("access_token"));
+        returnValue.put("refresh_token", userInfo.get("refresh_token"));
 
         return returnValue;
     }

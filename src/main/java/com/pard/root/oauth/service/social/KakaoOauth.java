@@ -3,6 +3,7 @@ package com.pard.root.oauth.service.social;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pard.root.oauth.helper.constants.SocialLoginType;
+import com.pard.root.token.component.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,7 @@ public class KakaoOauth implements SocialOauth {
     private String userInfoUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final JwtProvider jwtProvider;
 
     @Override
     public SocialLoginType type() {
@@ -95,7 +97,16 @@ public class KakaoOauth implements SocialOauth {
             userInfo.put("name", jsonNode.path("properties").path("nickname").asText());
             userInfo.put("email", jsonNode.path("kakao_account").path("email").asText());
             userInfo.put("picture", jsonNode.path("properties").path("profile_image").asText());
-            userInfo.put("refresh_token", token.get("refresh_token"));
+
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("providerId", jsonNode.get("id").asText());
+            claims.put("name", jsonNode.path("properties").path("nickname").asText());
+            claims.put("email", jsonNode.path("kakao_account").path("email").asText());
+
+            String access_token = jwtProvider.generateAccessToken(claims, jsonNode.get("id").asText());
+            String refresh_token = jwtProvider.generateRefreshToken(jsonNode.get("id").asText());
+            userInfo.put("access_token", access_token);
+            userInfo.put("refresh_token", refresh_token);
 
             return userInfo;
         } catch (Exception e) {

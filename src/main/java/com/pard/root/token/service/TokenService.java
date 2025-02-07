@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -14,27 +15,31 @@ public class TokenService {
     private final TokenRepository tokenRepository;
 
     @Transactional
-    public void saveOrUpdateRefreshToken(String providerId, String newRefreshToken) {
-        if (providerId == null || providerId.isEmpty()) {
+    public void saveOrUpdateRefreshToken(Map<String, Object> userInfo) {
+        if (userInfo.get("sub") == null) {
             throw new IllegalArgumentException("Provider ID cannot be null or empty");
         }
 
-        Optional<RefreshToken> existingToken = tokenRepository.findByProviderId(providerId);
+        Optional<RefreshToken> existingToken = tokenRepository.findByProviderId(userInfo.get("sub").toString());
 
         if (existingToken.isPresent()) {
-            if (!existingToken.get().getRefreshToken().equals(newRefreshToken)) {
+            if (!existingToken.get().getRefreshToken().equals(userInfo.get("refresh_token"))) {
                 RefreshToken refreshTokenEntity = existingToken.get();
                 refreshTokenEntity = RefreshToken.builder()
                         .id(refreshTokenEntity.getId())
-                        .providerId(providerId)
-                        .refreshToken(newRefreshToken)
+                        .providerId((String) userInfo.get("sub"))
+                        .refreshToken((String) userInfo.get("refresh_token"))
+                        .email((String) userInfo.get("email"))
+                        .name((String) userInfo.get("name"))
                         .build();
                 tokenRepository.save(refreshTokenEntity);
             }
         } else {
             RefreshToken refreshTokenEntity = RefreshToken.builder()
-                    .providerId(providerId)
-                    .refreshToken(newRefreshToken)
+                    .providerId((String) userInfo.get("sub"))
+                    .refreshToken((String) userInfo.get("refresh_token"))
+                    .email((String) userInfo.get("email"))
+                    .name((String) userInfo.get("name"))
                     .build();
             tokenRepository.save(refreshTokenEntity);
         }
