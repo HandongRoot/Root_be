@@ -3,6 +3,7 @@ package com.pard.root.oauth.service.social;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pard.root.oauth.helper.constants.SocialLoginType;
+import com.pard.root.token.component.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -95,7 +96,6 @@ public class KakaoOauth implements SocialOauth {
             userInfo.put("name", jsonNode.path("properties").path("nickname").asText());
             userInfo.put("email", jsonNode.path("kakao_account").path("email").asText());
             userInfo.put("picture", jsonNode.path("properties").path("profile_image").asText());
-            userInfo.put("refresh_token", token.get("refresh_token"));
 
             return userInfo;
         } catch (Exception e) {
