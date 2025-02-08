@@ -2,7 +2,7 @@ package com.pard.root.oauth.service;
 
 import com.pard.root.oauth.helper.constants.SocialLoginType;
 import com.pard.root.oauth.service.social.SocialOauth;
-import com.pard.root.token.component.JwtProvider;
+import com.pard.root.config.component.JwtProvider;
 import com.pard.root.token.service.TokenService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +53,7 @@ public class OauthService {
         claims.put("userId", user.getId());
         claims.put("name", user.getName());
         claims.put("email", user.getEmail());
+        claims.put("provider", user.getProvider());
 
         String access_token = jwtProvider.generateAccessToken(claims, providerId);
         String refresh_token = jwtProvider.generateRefreshToken(providerId);
