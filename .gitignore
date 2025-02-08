@@ -219,6 +219,3 @@ out/
 *.properties
 secret/
 src/main/resources/
-
-## Config ##
-src/main/java/com/pard/root/config/
