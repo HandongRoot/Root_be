@@ -5,6 +5,7 @@ import com.pard.root.oauth.service.social.SocialOauth;
 import com.pard.root.config.component.JwtProvider;
 import com.pard.root.token.service.TokenService;
 import com.pard.root.user.entity.User;
+import com.pard.root.user.entity.constants.Role;
 import com.pard.root.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,10 @@ public class OauthService {
         claims.put("name", user.getName());
         claims.put("email", user.getEmail());
         claims.put("provider", user.getProvider());
+        claims.put("roles", user.getRoles().stream()
+                .filter(role -> role == Role.USER)
+                .map(Role::getAuthority)
+                .toList());
 
         String access_token = jwtProvider.generateAccessToken(claims, providerId);
         String refresh_token = jwtProvider.generateRefreshToken(providerId);
@@ -63,7 +68,6 @@ public class OauthService {
 
 
         Map<String, Object> returnValue = new HashMap<>();
-        returnValue.put("user_id", user.getId());
         returnValue.put("access_token", access_token);
         returnValue.put("refresh_token", refresh_token);
 
