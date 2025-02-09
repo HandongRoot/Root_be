@@ -1,5 +1,6 @@
 package com.pard.root.config;
 
+import com.pard.root.config.component.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -26,20 +28,19 @@ public class SecurityConfig {
 //    @Value("${root.client.domain2}")
 //    private String domain2;
 //
-//    private final JwtFilter jwtFilter;
+    private final JwtFilter jwtFilter;
 
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        http
 //                .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
 //                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(au -> au
-//                        .requestMatchers("/api/auth/**","/api/**").permitAll()
-//                        .anyRequest().permitAll())
-//                        .anyRequest().authenticated())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/auth/**").permitAll()
+//                        .anyRequest().authenticated()
+//                )
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // JwtFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
-//
+//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 //
 //        return http.build();
 //    }
