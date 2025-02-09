@@ -1,16 +1,12 @@
 package com.pard.root.token.service;
 
-import com.pard.root.token.component.JwtProvider;
+import com.pard.root.config.component.JwtProvider;
 import com.pard.root.token.entity.RefreshToken;
 import com.pard.root.token.repo.TokenRepository;
-import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
-import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

@@ -1,14 +1,23 @@
-package com.pard.root.token.component;
+package com.pard.root.config.component;
 
+import com.pard.root.security.entity.CustomUserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -17,14 +26,39 @@ public class JwtProvider {
     private final Key key;
 
     @Value("${jwt.access.token.expiration}")
-    private long accessExpiration;  // Access Token 만료 시간 (ms)
+    private long accessExpiration;
 
     @Value("${jwt.refresh.token.expiration}")
-    private long refreshExpiration; // Refresh Token 만료 시간 (ms)
+    private long refreshExpiration;
+
+    private static final String AUTHORITIES_KEY = "roles";
 
 
     public JwtProvider(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+
+        String userId = claims.get("userId").toString();
+        String email = claims.get("email").toString();
+        String provider = claims.get("provider").toString();
+
+        UserDetails principal = new CustomUserDetails(userId, email, provider, authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
     public String generateAccessToken(Map<String, Object> claims, String subject) {
