@@ -28,5 +28,5 @@ public class RefreshToken extends BaseTimeEntity {
     private String providerId;
 
     @Column(nullable = false, name = "refresh_token")
-    private String refreshToken;
+    private String token;
 }
