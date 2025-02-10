@@ -1,10 +1,18 @@
 package com.pard.root.user.service;
 
+import com.pard.root.config.component.JwtFilter;
+import com.pard.root.config.component.JwtProvider;
+import com.pard.root.token.repo.TokenRepository;
+import com.pard.root.token.service.BlacklistedTokenService;
+import com.pard.root.token.service.TokenService;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +21,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
+    private final BlacklistedTokenService blacklistedTokenService;
+    private final TokenService tokenService;
+    private final JwtProvider jwtProvider;
 
     @Transactional
     public String saveUser(Map<String, Object> userInfo) {
@@ -36,8 +47,7 @@ public class UserService {
     }
 
     public User findById(UUID id) {
-        User user = userRepository.findById(id).orElse(null);
-        return user;
+        return userRepository.findById(id).orElse(null);
     }
 
     public UserReadDto findByUserId(UUID id) {
@@ -52,5 +62,18 @@ public class UserService {
 
     public boolean existsByProviderId(String providerId) {
         return userRepository.existsByProviderId(providerId);
+    }
+
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String accessToken = jwtProvider.resolveToken(request);
+        if (accessToken == null) {
+            return ResponseEntity.badRequest().body("Access Token is missing");
+        }
+        blacklistedTokenService.addToBlacklist(accessToken);
+
+        String providerId = jwtProvider.parseToken(accessToken).getSubject();
+        tokenService.deleteByProviderId(providerId);
+
+        return ResponseEntity.ok("Logout successful");
     }
 }

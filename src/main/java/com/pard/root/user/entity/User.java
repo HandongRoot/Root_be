@@ -46,6 +46,8 @@ public class User extends BaseTimeEntity {
     @Column(name = "role")
     private Set<Role> roles = new HashSet<>();
 
+    private boolean is_active;
+
     private String provider;
     private String providerId;
 
@@ -64,6 +66,7 @@ public class User extends BaseTimeEntity {
                 .provider(userCreateDto.getProvider())
                 .providerId(userCreateDto.getProviderId())
                 .roles(Set.of(Role.USER))
+                .is_active(true)
                 .build();
     }
 }

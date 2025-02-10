@@ -4,6 +4,7 @@ import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,4 +41,13 @@ public class UserController {
         }
     }
 
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        try {
+            return userService.logout(request);
+        } catch (Exception ex){
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
