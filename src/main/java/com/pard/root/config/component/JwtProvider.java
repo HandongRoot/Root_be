@@ -1,6 +1,7 @@
 package com.pard.root.config.component;
 
 import com.pard.root.security.entity.CustomUserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -51,12 +53,10 @@ public class JwtProvider {
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-
         String userId = claims.get("userId").toString();
         String email = claims.get("email").toString();
-        String provider = claims.get("provider").toString();
 
-        UserDetails principal = new CustomUserDetails(userId, email, provider, authorities);
+        UserDetails principal = new CustomUserDetails(userId, email, authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
@@ -94,13 +94,49 @@ public class JwtProvider {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("Invalid JWT signature or token is malformed: {}", e.getMessage());
+            return false;
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token: {}", e.getMessage());
+            return false;
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token: {}", e.getMessage());
+            return false;
         } catch (IllegalArgumentException e) {
             log.error("JWT token compact of handler are invalid: {}", e.getMessage());
+            return false;
         }
-        return false;
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    /**
+     * Token의 만료 시간을 가져오는 메서드
+     * @param token JWT Token
+     * @return 토큰의 만료 시간 (Unix Timestamp, milliseconds)
+     */
+    public long getExpirationTime(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            Date expiration = claims.getExpiration();
+            return expiration.getTime();
+        } catch (ExpiredJwtException e) {
+            log.warn("Attempted to get expiration time of an expired token: {}", e.getMessage());
+            return e.getClaims().getExpiration().getTime();
+        } catch (Exception e) {
+            log.error("Error while getting expiration time: {}", e.getMessage());
+            return -1;
+        }
     }
 }
