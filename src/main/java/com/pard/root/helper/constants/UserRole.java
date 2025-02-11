@@ -1,4 +1,4 @@
-package com.pard.root.user.entity.constants;
+package com.pard.root.helper.constants;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
