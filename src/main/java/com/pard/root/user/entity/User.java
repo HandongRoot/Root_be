@@ -2,7 +2,7 @@ package com.pard.root.user.entity;
 
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.helper.constants.UserRole;
-import com.pard.root.utility.BaseTimeEntity;
+import com.pard.root.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;

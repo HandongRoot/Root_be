@@ -1,16 +1,14 @@
 package com.pard.root.folder.entity;
 
 import com.pard.root.content.entity.Content;
-import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.user.entity.User;
-import com.pard.root.utility.BaseTimeEntity;
+import com.pard.root.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.UUID;
 
 @Entity
 @Getter

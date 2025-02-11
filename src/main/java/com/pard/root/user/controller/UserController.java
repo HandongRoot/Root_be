@@ -2,9 +2,8 @@ package com.pard.root.user.controller;
 
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
-import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
-import com.pard.root.utility.SecurityUtil;
+import com.pard.root.config.security.util.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

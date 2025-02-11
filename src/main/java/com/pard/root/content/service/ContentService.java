@@ -7,11 +7,10 @@ import com.pard.root.content.entity.Content;
 import com.pard.root.content.repo.ContentRepository;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
-import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
-import com.pard.root.utility.SecurityUtil;
+import com.pard.root.config.security.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

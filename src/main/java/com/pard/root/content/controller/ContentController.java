@@ -1,13 +1,11 @@
 package com.pard.root.content.controller;
 
 import com.pard.root.content.dto.ContentCreateDto;
-import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
-import com.pard.root.utility.SecurityUtil;
+import com.pard.root.config.security.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

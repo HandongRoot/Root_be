@@ -4,7 +4,7 @@ import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.user.entity.User;
-import com.pard.root.utility.BaseTimeEntity;
+import com.pard.root.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

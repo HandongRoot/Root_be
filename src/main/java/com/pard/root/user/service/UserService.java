@@ -1,10 +1,8 @@
 package com.pard.root.user.service;
 
-import com.pard.root.config.component.JwtFilter;
-import com.pard.root.config.component.JwtProvider;
-import com.pard.root.token.repo.TokenRepository;
-import com.pard.root.token.service.BlacklistedTokenService;
-import com.pard.root.token.service.TokenService;
+import com.pard.root.config.security.service.JwtProvider;
+import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
+import com.pard.root.auth.token.service.TokenService;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
