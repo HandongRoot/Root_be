@@ -1,4 +1,4 @@
-package com.pard.root.oauth.helper.constants;
+package com.pard.root.helper.constants;
 
 public enum SocialLoginType {
         GOOGLE,
