@@ -1,13 +1,12 @@
-package com.pard.root.token.controller;
+package com.pard.root.auth.token.controller;
 
-import com.pard.root.token.service.TokenService;
+import com.pard.root.auth.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController

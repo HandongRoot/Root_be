@@ -1,12 +1,11 @@
-package com.pard.root.token.service;
+package com.pard.root.auth.token.service;
 
-import com.pard.root.config.component.JwtProvider;
-import com.pard.root.token.entity.RefreshToken;
-import com.pard.root.token.repo.TokenRepository;
+import com.pard.root.config.security.service.JwtProvider;
+import com.pard.root.helper.constants.UserRole;
+import com.pard.root.auth.token.entity.RefreshToken;
+import com.pard.root.auth.token.repo.TokenRepository;
 import com.pard.root.user.entity.User;
-import com.pard.root.user.entity.constants.Role;
 import com.pard.root.user.repo.UserRepository;
-import com.pard.root.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,8 +87,8 @@ public class TokenService {
         claims.put("name", user.getName());
         claims.put("email", user.getEmail());
         claims.put("roles", user.getRoles().stream()
-                .filter(role -> role == Role.USER)
-                .map(Role::getAuthority)
+                .filter(role -> role == UserRole.USER)
+                .map(UserRole::getAuthority)
                 .toList());
 
         String access_token = jwtProvider.generateAccessToken(claims, providerId);

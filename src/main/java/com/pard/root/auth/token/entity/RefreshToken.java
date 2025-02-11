@@ -1,11 +1,8 @@
-package com.pard.root.token.entity;
+package com.pard.root.auth.token.entity;
 
-import com.pard.root.utility.BaseTimeEntity;
+import com.pard.root.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.security.Timestamp;
-import java.util.UUID;
 
 @Entity
 @Getter

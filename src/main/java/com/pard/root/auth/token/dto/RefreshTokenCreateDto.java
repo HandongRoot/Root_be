@@ -1,4 +1,4 @@
-package com.pard.root.token.dto;
+package com.pard.root.auth.token.dto;
 
 import lombok.Getter;
 import lombok.Setter;
