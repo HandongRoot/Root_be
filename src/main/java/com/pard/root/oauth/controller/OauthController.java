@@ -1,7 +1,7 @@
 package com.pard.root.oauth.controller;
 
 
-import com.pard.root.oauth.helper.constants.SocialLoginType;
+import com.pard.root.helper.constants.SocialLoginType;
 import com.pard.root.oauth.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

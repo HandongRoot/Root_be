@@ -1,6 +1,6 @@
 package com.pard.root.oauth.service.social;
 
-import com.pard.root.oauth.helper.constants.SocialLoginType;
+import com.pard.root.helper.constants.SocialLoginType;
 
 import java.util.Map;
 

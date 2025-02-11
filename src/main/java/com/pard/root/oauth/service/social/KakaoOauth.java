@@ -2,7 +2,7 @@ package com.pard.root.oauth.service.social;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pard.root.oauth.helper.constants.SocialLoginType;
+import com.pard.root.helper.constants.SocialLoginType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.pard.root.helper.converter;
+package com.pard.root.oauth.service.converter;
 
 import com.pard.root.helper.constants.SocialLoginType;
 import org.springframework.context.annotation.Configuration;
