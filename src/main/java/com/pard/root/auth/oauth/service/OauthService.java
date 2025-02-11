@@ -1,9 +1,9 @@
-package com.pard.root.oauth.service;
+package com.pard.root.auth.oauth.service;
 
 import com.pard.root.helper.constants.SocialLoginType;
-import com.pard.root.oauth.service.social.SocialOauth;
-import com.pard.root.config.component.JwtProvider;
-import com.pard.root.token.service.TokenService;
+import com.pard.root.auth.oauth.service.social.SocialOauth;
+import com.pard.root.config.security.service.JwtProvider;
+import com.pard.root.auth.token.service.TokenService;
 import com.pard.root.user.entity.User;
 import com.pard.root.helper.constants.UserRole;
 import com.pard.root.user.service.UserService;

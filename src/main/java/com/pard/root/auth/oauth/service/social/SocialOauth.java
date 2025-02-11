@@ -1,4 +1,4 @@
-package com.pard.root.oauth.service.social;
+package com.pard.root.auth.oauth.service.social;
 
 import com.pard.root.helper.constants.SocialLoginType;
 

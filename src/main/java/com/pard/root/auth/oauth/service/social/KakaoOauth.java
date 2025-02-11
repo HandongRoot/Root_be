@@ -1,4 +1,4 @@
-package com.pard.root.oauth.service.social;
+package com.pard.root.auth.oauth.service.social;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
