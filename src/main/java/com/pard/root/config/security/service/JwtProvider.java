@@ -1,6 +1,6 @@
-package com.pard.root.config.component;
+package com.pard.root.config.security.service;
 
-import com.pard.root.security.entity.CustomUserDetails;
+import com.pard.root.config.security.entity.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import io.jsonwebtoken.*;
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component

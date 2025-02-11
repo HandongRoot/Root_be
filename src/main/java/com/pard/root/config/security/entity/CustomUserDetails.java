@@ -1,4 +1,4 @@
-package com.pard.root.security.entity;
+package com.pard.root.config.security.entity;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

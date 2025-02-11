@@ -1,6 +1,7 @@
-package com.pard.root.config.component;
+package com.pard.root.config.security.config;
 
-import com.pard.root.token.service.BlacklistedTokenService;
+import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
+import com.pard.root.config.security.service.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {

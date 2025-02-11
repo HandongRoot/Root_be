@@ -1,7 +1,7 @@
-package com.pard.root.security.service;
+package com.pard.root.config.security.service;
 
 
-import com.pard.root.security.entity.CustomUserDetails;
+import com.pard.root.config.security.entity.CustomUserDetails;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,9 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
 
 @Service

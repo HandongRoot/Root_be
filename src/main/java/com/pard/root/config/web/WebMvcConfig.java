@@ -1,4 +1,4 @@
-package com.pard.root.config;
+package com.pard.root.config.web;
 
 import org.springframework.boot.web.servlet.view.MustacheViewResolver;
 import org.springframework.context.annotation.Configuration;
