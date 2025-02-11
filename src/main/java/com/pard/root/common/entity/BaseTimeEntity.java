@@ -1,4 +1,4 @@
-package com.pard.root.utility;
+package com.pard.root.common.entity;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
