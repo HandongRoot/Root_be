@@ -11,6 +11,7 @@ import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
+import com.pard.root.utility.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,9 +35,8 @@ public class CategoryService {
     private final ContentRepository contentRepo;
 
     public void save(CategoryCreateDto categoryCreateDto) {
-        log.info("\uD83D\uDCCD Create Category");
         User user = userRepo.findById(categoryCreateDto.getUserId()).orElse(null);
-
+        SecurityUtil.validateUserAccess(Objects.requireNonNull(user).getId());
         categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0));
     }
 
@@ -74,7 +75,7 @@ public class CategoryService {
     @Transactional
     public void updateTitle(Long categoryId, UUID userId, CategoryUpdateDto dto) {
         Category category = categoryRepo.findById(categoryId).orElseThrow();
-        if(category.getUser().getId().equals(userId)) {
+        if(checkToUserId(userId, category.getUser().getId())) {
             category.updateTitle(dto);
         }
         else {
@@ -103,11 +104,16 @@ public class CategoryService {
     public void deleteCategory(Long categoryId, UUID userId) {
         Category category = findById(categoryId);
 
-        if(category.getUser().getId().equals(userId)) {
+        if(checkToUserId(userId, category.getUser().getId())) {
             contentRepo.removeCategoryFromContents(category);
             categoryRepo.deleteById(categoryId);
         } else {
             throw new RuntimeException("You are not the owner of this category.");
         }
+    }
+
+    private boolean checkToUserId(UUID userId, UUID comparisonId) {
+        SecurityUtil.validateUserAccess(userId);
+        return userId.equals(comparisonId);
     }
 }

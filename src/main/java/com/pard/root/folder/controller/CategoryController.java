@@ -5,6 +5,7 @@ import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.folder.service.CategoryService;
+import com.pard.root.utility.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,7 @@ public class CategoryController {
     @Operation(summary = "Category 보기 (모든 것)", description = "해당 유저가 가지고 있는 Category를 다 보기")
     public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
         try {
+            SecurityUtil.validateUserAccess(userId);
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
             return ResponseEntity.ok(readDto);
         }
@@ -61,6 +63,7 @@ public class CategoryController {
     @Operation(summary = "Category 검색 기능", description = "Param({userId}?title={data})해당 유저가 같고 있는 Category를 찾는 기능입니다.")
     public ResponseEntity<?> searchCategory(@RequestParam String title, @PathVariable UUID userId) {
         try {
+            SecurityUtil.validateUserAccess(userId);
             List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, title);
             return ResponseEntity.ok(readDto);
         }

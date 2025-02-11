@@ -4,6 +4,8 @@ import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
+import com.pard.root.utility.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +34,7 @@ public class UserController {
     @Operation(summary = "User 정보보기", description = "해당 유저의 정보를 보는 방법")
     public ResponseEntity<UserReadDto> findById(@PathVariable UUID userId) {
         try{
+            SecurityUtil.validateUserAccess(userId);
             UserReadDto userReadDto = userService.findByUserId(userId);
             return ResponseEntity.ok(userReadDto);
         } catch (Exception ex){
@@ -40,4 +43,13 @@ public class UserController {
         }
     }
 
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        try {
+            return userService.logout(request);
+        } catch (Exception ex){
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

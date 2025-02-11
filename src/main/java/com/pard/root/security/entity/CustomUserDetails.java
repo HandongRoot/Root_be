@@ -11,13 +11,11 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private final String userId;
     private final String email;
-    private final String provider;
     private final List<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(String userId, String email, String provider, Collection<? extends GrantedAuthority> roles) {
+    public CustomUserDetails(String userId, String email, Collection<? extends GrantedAuthority> roles) {
         this.userId = userId;
         this.email = email;
-        this.provider = provider;
         this.authorities = roles.stream().toList();
     }
 

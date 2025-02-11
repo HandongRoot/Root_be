@@ -54,7 +54,6 @@ public class OauthService {
         claims.put("userId", user.getId());
         claims.put("name", user.getName());
         claims.put("email", user.getEmail());
-        claims.put("provider", user.getProvider());
         claims.put("roles", user.getRoles().stream()
                 .filter(role -> role == Role.USER)
                 .map(Role::getAuthority)
