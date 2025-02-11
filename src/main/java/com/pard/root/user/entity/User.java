@@ -1,7 +1,7 @@
 package com.pard.root.user.entity;
 
 import com.pard.root.user.dto.UserCreateDto;
-import com.pard.root.user.entity.constants.Role;
+import com.pard.root.user.entity.constants.UserRole;
 import com.pard.root.utility.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -44,7 +44,7 @@ public class User extends BaseTimeEntity {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Set<Role> roles = new HashSet<>();
+    private Set<UserRole> roles = new HashSet<>();
 
     private boolean is_active;
 
@@ -52,7 +52,7 @@ public class User extends BaseTimeEntity {
     private String providerId;
 
     @Builder
-    public User(String name, String email, Set<Role> roles) {
+    public User(String name, String email, Set<UserRole> roles) {
         this.name = name;
         this.email = email;
         this.roles = roles;
@@ -65,7 +65,7 @@ public class User extends BaseTimeEntity {
                 .pictureUrl(userCreateDto.getPictureUrl())
                 .provider(userCreateDto.getProvider())
                 .providerId(userCreateDto.getProviderId())
-                .roles(Set.of(Role.USER))
+                .roles(Set.of(UserRole.USER))
                 .is_active(true)
                 .build();
     }
