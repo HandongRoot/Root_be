@@ -11,6 +11,7 @@ import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
+import com.pard.root.utility.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +81,6 @@ public class ContentService {
         if (category == null) {
             throw new RuntimeException("Category not found with id: " + categoryId);
         }
-        log.info("\uD83D\uDCCD Search Category");
 
         List<Content> contents = Arrays.stream(contentIds)
                 .map(id -> contentRepository.findById(id)
@@ -129,6 +129,7 @@ public class ContentService {
     }
 
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
+        SecurityUtil.validateUserAccess(userId);
         return userId.equals(comparisonId);
     }
 }
