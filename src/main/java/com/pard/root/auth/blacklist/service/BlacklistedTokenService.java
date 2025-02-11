@@ -1,8 +1,8 @@
-package com.pard.root.token.service;
+package com.pard.root.auth.blacklist.service;
 
-import com.pard.root.config.component.JwtProvider;
-import com.pard.root.token.entity.BlacklistedToken;
-import com.pard.root.token.repo.BlacklistedTokenRepository;
+import com.pard.root.config.security.service.JwtProvider;
+import com.pard.root.auth.blacklist.entity.BlacklistedToken;
+import com.pard.root.auth.blacklist.repo.BlacklistedTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

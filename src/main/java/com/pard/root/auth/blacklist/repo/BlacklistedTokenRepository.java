@@ -1,6 +1,6 @@
-package com.pard.root.token.repo;
+package com.pard.root.auth.blacklist.repo;
 
-import com.pard.root.token.entity.BlacklistedToken;
+import com.pard.root.auth.blacklist.entity.BlacklistedToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
