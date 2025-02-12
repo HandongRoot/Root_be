@@ -1,5 +1,6 @@
 package com.pard.root.user.entity;
 
+import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.helper.constants.UserRole;
 import com.pard.root.common.entity.BaseTimeEntity;
@@ -46,7 +47,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "role")
     private Set<UserRole> roles = new HashSet<>();
 
-    private boolean is_active;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_state")
+    private UserState userState = UserState.ACTIVE;
 
     private String provider;
     private String providerId;
@@ -66,7 +69,6 @@ public class User extends BaseTimeEntity {
                 .provider(userCreateDto.getProvider())
                 .providerId(userCreateDto.getProviderId())
                 .roles(Set.of(UserRole.USER))
-                .is_active(true)
                 .build();
     }
 }

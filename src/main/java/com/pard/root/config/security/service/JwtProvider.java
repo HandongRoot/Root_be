@@ -32,11 +32,14 @@ public class JwtProvider {
     @Value("${jwt.refresh.token.expiration}")
     private long refreshExpiration;
 
+    private final CustomUserDetailsService customUserDetailsService;
+
     private static final String AUTHORITIES_KEY = "roles";
 
 
-    public JwtProvider(@Value("${jwt.secret}") String secret) {
+    public JwtProvider(@Value("${jwt.secret}") String secret, CustomUserDetailsService customUserDetailsService) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     public Authentication getAuthentication(String token) {
@@ -55,9 +58,9 @@ public class JwtProvider {
         String userId = claims.get("userId").toString();
         String email = claims.get("email").toString();
 
-        UserDetails principal = new CustomUserDetails(userId, email, authorities);
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId);
 
-        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 
     public String generateAccessToken(Map<String, Object> claims, String subject) {

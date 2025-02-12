@@ -19,7 +19,7 @@ public class BlacklistedToken extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, name = "access_token")
+    @Column(nullable = false, name = "access_token", length = 2048)
     private String accessToken;
 
     @Column(nullable = false, name = "expiration_time")

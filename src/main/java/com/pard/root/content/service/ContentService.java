@@ -40,8 +40,9 @@ public class ContentService {
         if(checkToUserId(userId, userIdInCategory)){
             User user = userService.findById(userId);
             List<Content> contents = contentRepository.findContentsByUserAndCategory(user, category);
+            CategoryReadDto categoryReadDto = new CategoryReadDto(category);
             return contents.stream()
-                    .map(ContentReadDto::new)
+                    .map(content -> new ContentReadDto(content, categoryReadDto))
                     .toList();
         }
         else throw new AccessDeniedException("User does not have access to this category.");
@@ -73,12 +74,8 @@ public class ContentService {
     }
 
     @Transactional
-    public void changeCategory(Long[] contentIds, Long categoryId) {
-
-        Category category = categoryService.findById(categoryId);
-        if (category == null) {
-            throw new RuntimeException("Category not found with id: " + categoryId);
-        }
+    public void changeCategory(Long[] contentIds, Long categoryId, UUID userId) {
+        Category category = (categoryId != 0) ? categoryService.findById(categoryId) : null;
 
         List<Content> contents = Arrays.stream(contentIds)
                 .map(id -> contentRepository.findById(id)
@@ -89,8 +86,12 @@ public class ContentService {
                 throw new IllegalArgumentException("Content with ID " + content.getId() + " is already in the selected category.");
             }
 
-            log.info("\uD83D\uDCCD Search content");
-            if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
+            if (checkToUserId(content.getUser().getId(), userId) && category == null) {
+                if (content.getCategory() != null) {
+                    categoryService.decrementContentCount(content.getCategory().getId());
+                }
+                content.changeCategory(null);
+            } else if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
                 if (content.getCategory() != null) {
                     categoryService.decrementContentCount(content.getCategory().getId());
                     log.info("\uD83D\uDCCD Search decrementContentCount");
@@ -127,7 +128,6 @@ public class ContentService {
     }
 
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
-//        SecurityUtil.validateUserAccess(userId);
         return userId.equals(comparisonId);
     }
 }
