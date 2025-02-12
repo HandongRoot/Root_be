@@ -2,6 +2,7 @@ package com.pard.root.config.security.service;
 
 
 import com.pard.root.config.security.entity.CustomUserDetails;
+import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +27,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + userId));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+
+        if (user.getUserState() != UserState.ACTIVE) {
+            throw new UsernameNotFoundException("This account is not activated. (State: " + user.getUserState() + ")");
+        }
 
         Collection<? extends GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
