@@ -33,7 +33,7 @@ public class UserController {
     @Operation(summary = "User 정보보기", description = "해당 유저의 정보를 보는 방법")
     public ResponseEntity<UserReadDto> findById(@PathVariable UUID userId) {
         try{
-            SecurityUtil.validateUserAccess(userId);
+//            SecurityUtil.validateUserAccess(userId);
             UserReadDto userReadDto = userService.findByUserId(userId);
             return ResponseEntity.ok(userReadDto);
         } catch (Exception ex){
