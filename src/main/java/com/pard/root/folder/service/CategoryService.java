@@ -35,7 +35,7 @@ public class CategoryService {
 
     public void save(CategoryCreateDto categoryCreateDto) {
         User user = userRepo.findById(categoryCreateDto.getUserId()).orElse(null);
-        SecurityUtil.validateUserAccess(Objects.requireNonNull(user).getId());
+//        SecurityUtil.validateUserAccess(categoryCreateDto.getUserId());
         categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0));
     }
 
@@ -112,7 +112,6 @@ public class CategoryService {
     }
 
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
-//        SecurityUtil.validateUserAccess(userId);
         return userId.equals(comparisonId);
     }
 }

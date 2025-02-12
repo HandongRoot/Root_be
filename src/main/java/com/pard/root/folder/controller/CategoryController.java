@@ -51,7 +51,7 @@ public class CategoryController {
     @Operation(summary = "Category 보기 (모든 것)", description = "해당 유저가 가지고 있는 Category를 다 보기")
     public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
         try {
-//            SecurityUtil.validateUserAccess(userId);
+//            checkVaildate(userId);
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
             return ResponseEntity.ok(readDto);
         }
@@ -65,7 +65,7 @@ public class CategoryController {
     @Operation(summary = "Category 검색 기능", description = "Param({userId}?title={data})해당 유저가 같고 있는 Category를 찾는 기능입니다.")
     public ResponseEntity<?> searchCategory(@RequestParam String title, @PathVariable UUID userId) {
         try {
-//            SecurityUtil.validateUserAccess(userId);
+//            checkVaildate(userId);
             List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, title);
             return ResponseEntity.ok(readDto);
         }
@@ -79,6 +79,7 @@ public class CategoryController {
     @Operation(summary = "Category's Title 변경 기능", description = "Category의 Id 값으로 Title을 새롭게 변경하는 기능")
     public ResponseEntity<?> updateCategory(@PathVariable UUID userId, @PathVariable Long categoryId, @RequestBody CategoryUpdateDto dto) {
         try {
+//            checkVaildate(userId);
             categoryService.updateTitle(categoryId, userId, dto);
             return ResponseEntity.ok("Category updated successfully");
         } catch (Exception e) {
@@ -91,11 +92,16 @@ public class CategoryController {
     @Operation(summary = "Category 삭제 기능", description = "Category 의 Id 값으로 Category 삭제")
     public ResponseEntity<?> deleteCategory(@PathVariable UUID userId, @PathVariable Long categoryId) {
         try {
+//            checkVaildate(userId);
             categoryService.deleteCategory(categoryId, userId);
             return ResponseEntity.ok("Category deleted successfully");
         } catch (Exception e) {
             log.error("An unexpected error occurred while deleting category", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete category");
         }
+    }
+
+    private void checkVaildate(UUID userId){
+//        SecurityUtil.validateUserAccess(userId);
     }
 }

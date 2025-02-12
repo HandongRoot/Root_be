@@ -36,7 +36,7 @@ public class UserController {
     @Operation(summary = "User 정보보기", description = "해당 유저의 정보를 보는 방법")
     public ResponseEntity<UserReadDto> findById(@PathVariable UUID userId) {
         try{
-//            SecurityUtil.validateUserAccess(userId);
+//            checkVaildate(userId);
             UserReadDto userReadDto = userService.findByUserId(userId);
             return ResponseEntity.ok(userReadDto);
         } catch (Exception ex){
@@ -45,11 +45,11 @@ public class UserController {
         }
     }
 
-
-    @PostMapping("/logout")
+    @PostMapping("/logout/{userId}")
     @Operation(summary = "로그아웃", description = "현재 인증된 사용자를 로그아웃합니다.")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request, @PathVariable UUID userId) {
         try {
+//            checkVaildate(userId);
             return userService.logout(request);
         } catch (Exception ex){
             return ResponseEntity.badRequest().build();
@@ -60,9 +60,14 @@ public class UserController {
     @Operation(summary = "유저 삭제", description = "해당 유저 계정을 삭제합니다.")
     public ResponseEntity<String> deleteUser(HttpServletRequest request ,@PathVariable UUID userId) {
         try {
+//            checkVaildate(userId);
             return userService.deleteUser(request, userId);
         } catch (Exception ex){
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    private void checkVaildate(UUID userId){
+//        SecurityUtil.validateUserAccess(userId);
     }
 }
