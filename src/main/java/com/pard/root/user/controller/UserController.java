@@ -4,6 +4,8 @@ import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.service.UserService;
 import com.pard.root.config.security.util.SecurityUtil;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/user")
+@Tag(name = "User API", description = "유저 관련 API")
 public class UserController {
     private final UserService userService;
 
@@ -44,6 +47,7 @@ public class UserController {
 
 
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "현재 인증된 사용자를 로그아웃합니다.")
     public ResponseEntity<String> logout(HttpServletRequest request) {
         try {
             return userService.logout(request);
@@ -53,6 +57,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @Operation(summary = "유저 삭제", description = "해당 유저 계정을 삭제합니다.")
     public ResponseEntity<String> deleteUser(HttpServletRequest request ,@PathVariable UUID userId) {
         try {
             return userService.deleteUser(request, userId);

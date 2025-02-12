@@ -5,6 +5,7 @@ import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
 import com.pard.root.config.security.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/content")
+@Tag(name = "Contents API", description = "Contents 관련 API")
 public class ContentController {
     private final ContentService contentService;
 
@@ -72,10 +74,11 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/change/{categoryId}")
-    @Operation(summary = "Content 의 Category 변경 기능", description = "해당 Content가 속한 Category(from)에서 afterCategoryId(to)를 받아 그 category로 변경.")
-    public ResponseEntity<?> changeCategory(@RequestBody Long[] contentIds, @PathVariable Long categoryId) {
+    @PatchMapping("/change/{userId}/{categoryId}")
+    @Operation(summary = "Content 의 Category 변경 및 추가 기능", description = "해당 Content가 속한 Category(from)에서 afterCategoryId(to)를 받아 그 category로 변경.")
+    public ResponseEntity<?> changeCategory(@RequestBody Long[] contentIds,@PathVariable UUID userId ,@PathVariable Long categoryId) {
         try {
+            contentService.changeCategory(contentIds, categoryId);
             return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
