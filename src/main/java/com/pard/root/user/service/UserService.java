@@ -3,6 +3,7 @@ package com.pard.root.user.service;
 import com.pard.root.config.security.service.JwtProvider;
 import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
 import com.pard.root.auth.token.service.TokenService;
+import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
@@ -73,5 +74,25 @@ public class UserService {
         tokenService.deleteByProviderId(providerId);
 
         return ResponseEntity.ok("Logout successful");
+    }
+
+    @Transactional
+    public ResponseEntity<String> deleteUser(HttpServletRequest request, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User does not exist."));
+
+        String accessToken = jwtProvider.resolveToken(request);
+        if (accessToken == null) {
+            return ResponseEntity.badRequest().body("Access Token is missing");
+        }
+        blacklistedTokenService.addToBlacklist(accessToken);
+
+        userRepository.updateUserState(user.getId(), UserState.DEACTIVATED);
+
+        String providerId = jwtProvider.parseToken(accessToken).getSubject();
+        tokenService.deleteByProviderId(providerId);
+
+
+        return ResponseEntity.ok("User has been successfully deleted and logged out.");
     }
 }

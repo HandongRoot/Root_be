@@ -51,4 +51,13 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<String> deleteUser(HttpServletRequest request ,@PathVariable UUID userId) {
+        try {
+            return userService.deleteUser(request, userId);
+        } catch (Exception ex){
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
