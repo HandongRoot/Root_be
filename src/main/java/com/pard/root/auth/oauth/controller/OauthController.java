@@ -1,11 +1,14 @@
 package com.pard.root.auth.oauth.controller;
 
 
+import com.pard.root.auth.token.service.TokenService;
 import com.pard.root.helper.constants.SocialLoginType;
 import com.pard.root.auth.oauth.service.OauthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -17,6 +20,7 @@ import java.util.Map;
 @Slf4j
 public class OauthController {
     private final OauthService oauthService;
+    private final TokenService tokenService;
 
     @GetMapping("/{socialLoginType}")
     @Operation(summary = "소셜 로그인 요청 처리", description = "사용자가 특정 소셜 로그인 타입(구글, 카카오)으로 로그인 요청을 보내면 해당 요청을 OauthService로 넘겨 처리합니다.")
@@ -31,5 +35,15 @@ public class OauthController {
                                         @RequestParam(name = "code") String code) {
         log.info(">> 소셜 로그인 API 서버로부터 받은 code :: {}", code);
         return oauthService.requestAccessToken(socialLoginType, code);
+    }
+
+    @PostMapping("/refreshAccessToken")
+    @Operation(summary = "액세스 토큰 갱신", description = "리프레시 토큰을 이용하여 새로운 액세스 토큰을 발급합니다.")
+    public ResponseEntity<Map<String, Object>> refreshAccessToken(@RequestBody Map<String, String> requestBody) {
+        try {
+            return ResponseEntity.ok(tokenService.refreshAccessToken(requestBody));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
