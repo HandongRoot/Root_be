@@ -75,7 +75,7 @@ public class ContentController {
     }
 
     @PatchMapping("/change/{userId}/{categoryId}")
-    @Operation(summary = "Content 의 Category 변경 및 추가 기능", description = "해당 Content가 속한 Category(from)에서 afterCategoryId(to)를 받아 그 category로 변경.")
+    @Operation(summary = "Content 의 Category 변경 및 추가 기능", description = "해당 Content가 CategoryId(to)를 받아 그 category로 변경, if(CategoryId == 0) 일 시, category에서 빠지게 됨")
     public ResponseEntity<?> changeCategory(@RequestBody Long[] contentIds,@PathVariable UUID userId ,@PathVariable Long categoryId) {
         try {
 //            checkVaildate(userId);
