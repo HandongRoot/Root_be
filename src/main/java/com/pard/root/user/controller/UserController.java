@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/logout/{userId}")
-    @Operation(summary = "로그아웃", description = "현재 인증된 사용자를 로그아웃합니다.")
+    @Operation(summary = "로그 아웃", description = "현재 인증된 사용자를 로그아웃합니다.")
     public ResponseEntity<String> logout(HttpServletRequest request, @PathVariable UUID userId) {
         try {
 //            checkVaildate(userId);
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    @Operation(summary = "유저 삭제", description = "해당 유저 계정을 삭제합니다.")
+    @Operation(summary = "회원 탈퇴", description = "유저가 탈퇴합니다. (안돼~~~~~~).")
     public ResponseEntity<String> deleteUser(HttpServletRequest request ,@PathVariable UUID userId) {
         try {
 //            checkVaildate(userId);
