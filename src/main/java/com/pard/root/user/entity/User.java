@@ -69,6 +69,7 @@ public class User extends BaseTimeEntity {
                 .provider(userCreateDto.getProvider())
                 .providerId(userCreateDto.getProviderId())
                 .roles(Set.of(UserRole.USER))
+                .userState(UserState.ACTIVE)
                 .build();
     }
 }

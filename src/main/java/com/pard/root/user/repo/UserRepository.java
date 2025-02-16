@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByProviderId(@Param("providerId") String providerId);
 
-    @Query(value = "SELECT * FROM Users WHERE provider_id = :providerId", nativeQuery = true)
+    @Query(value = "SELECT * FROM users WHERE provider_id = :providerId", nativeQuery = true)
     Optional<User> findByProviderId(@Param("providerId") String providerId);
 
     @Modifying
