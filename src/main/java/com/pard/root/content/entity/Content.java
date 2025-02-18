@@ -11,6 +11,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -22,9 +25,8 @@ public class Content extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<ContentCategory> contentCategories = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
@@ -41,18 +43,13 @@ public class Content extends BaseTimeEntity {
     @Column(nullable = false, name = "linked_url", columnDefinition = "TEXT")
     private String linkedUrl;
 
-    public static Content toEntity(Category category, User user, ContentCreateDto dto) {
+    public static Content toEntity(User user, ContentCreateDto dto) {
         return Content.builder()
-                .category(category)
                 .user(user)
                 .title(dto.getTitle())
                 .thumbnail(dto.getThumbnail())
                 .linkedUrl(dto.getLinkedUrl())
                 .build();
-    }
-
-    public void changeCategory(Category category) {
-        this.category = category;
     }
 
     public void updateTitle(ContentUpdateDto dto) {

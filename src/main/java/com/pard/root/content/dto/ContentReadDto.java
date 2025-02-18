@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class ContentReadDto {
     private String thumbnail;
     private String linkedUrl;
     private LocalDateTime createdDate;
-    private CategoryReadDto category;
+    private CategoryReadDto categories;
 
     public ContentReadDto(Content content) {
         this.id = content.getId();
@@ -26,11 +27,11 @@ public class ContentReadDto {
         this.createdDate = content.getCreatedDate();
     }
 
-    public ContentReadDto(Content content, CategoryReadDto category) {
+    public ContentReadDto(Content content, CategoryReadDto categories) {
         this.id = content.getId();
         this.title = content.getTitle();
         this.thumbnail = content.getThumbnail();
         this.linkedUrl = content.getLinkedUrl();
-        this.category = category;
+        this.categories = categories;
     }
 }

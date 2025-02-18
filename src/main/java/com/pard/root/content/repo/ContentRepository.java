@@ -28,20 +28,15 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
             "ORDER BY c.id DESC")
     List<Content> findByUserAndTitleContains(@Param("user") User user, @Param("titlePart") String titlePart);
 
-    @Query("SELECT c " +
-            "FROM Content c " +
-            "WHERE c.user = :user AND c.category = :category " +
-            "ORDER BY c.id DESC ")
+    @Query("SELECT c FROM Content c " +
+            "JOIN ContentCategory cc ON c = cc.content " +
+            "WHERE c.user = :user AND cc.category = :category " +
+            "ORDER BY c.id DESC")
     List<Content> findContentsByUserAndCategory(@Param("user") User user, @Param("category") Category category);
 
-    @Query("SELECT c " +
-            "FROM Content c " +
-            "WHERE c.category = :category " +
-            "ORDER BY c.id DESC ")
-    List<Content> findByCategory(@Param("category") Category category, Pageable pageable);
-
-    @Transactional
-    @Modifying
-    @Query("UPDATE Content c SET c.category = NULL WHERE c.category = :category")
-    void removeCategoryFromContents(@Param("category") Category category);
+    @Query("SELECT c FROM Content c " +
+            "JOIN ContentCategory cc ON c = cc.content " +
+            "WHERE cc.category = :category " +
+            "ORDER BY c.id DESC")
+    List<Content> findByCategoryWithPageable(@Param("category") Category category, Pageable pageable);
 }

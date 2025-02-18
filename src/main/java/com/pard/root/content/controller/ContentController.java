@@ -3,7 +3,6 @@ package com.pard.root.content.controller;
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
-import com.pard.root.config.security.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -74,14 +73,25 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/change/{userId}/{categoryId}")
-    @Operation(summary = "Content 의 Category 변경 및 추가 기능", description = "해당 Content가 CategoryId(to)를 받아 그 category로 변경, if(CategoryId == 0) 일 시, category에서 빠지게 됨")
-    public ResponseEntity<?> changeCategory(@RequestBody Long[] contentIds,@PathVariable UUID userId ,@PathVariable Long categoryId) {
+    @PatchMapping("/add/{userId}/{categoryId}")
+    @Operation(summary = "Contents 의 Category 추가 기능 (겔러리 용)", description = "해당 Content 여러 개 혹은 1개가 CategoryId(to)를 받아 그 category로 주입.")
+    public ResponseEntity<?> addCategoryToContent(@RequestBody Long[] contentIds,@PathVariable UUID userId ,@PathVariable Long categoryId) {
         try {
 //            checkVaildate(userId);
-            contentService.changeCategory(contentIds, categoryId, userId);
+            contentService.addCategoryToContent(contentIds, categoryId, userId);
             return ResponseEntity.status(HttpStatus.CREATED).body("Content saved successfully");
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
+    @PatchMapping("/change/{userId}/{beforeCategoryId}/{afterCategoryId}")
+    @Operation(summary = "Content가 있던 Category의 정보를 바꾸는 기능 (카테고리 용)", description = "해당 Content가 CategoryId(to)를 받아 그 category로 변경, if(CategoryId == 0) 일 시, category에서 빠지게 됨")
+    public ResponseEntity<?> changeCategoryToContent(@PathVariable Long afterCategoryId, @PathVariable Long beforeCategoryId, @PathVariable UUID userId, @RequestBody Long contentId){
+        try {
+//            checkVaildate(userId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(contentService.changeCategoryToContent(contentId, beforeCategoryId, afterCategoryId, userId));
+        } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
