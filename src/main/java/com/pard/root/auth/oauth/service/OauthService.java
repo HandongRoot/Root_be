@@ -1,5 +1,7 @@
 package com.pard.root.auth.oauth.service;
 
+import com.pard.root.auth.oauth.converter.AppleLoginRequest;
+import com.pard.root.auth.oauth.service.social.AppleOauth;
 import com.pard.root.helper.constants.SocialLoginType;
 import com.pard.root.auth.oauth.service.social.SocialOauth;
 import com.pard.root.config.security.service.JwtProvider;
@@ -22,6 +24,7 @@ import java.util.Map;
 @Slf4j
 public class OauthService {
     private final List<SocialOauth> socialOauthList;
+    private final AppleOauth appleOauth;
     private final HttpServletResponse response;
     private final UserService userService;
     private final TokenService tokenService;
@@ -78,5 +81,35 @@ public class OauthService {
                 .filter(x -> x.type() == socialLoginType)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("알 수 없는 SocialLoginType 입니다."));
+    }
+
+    public Map<String, Object> requestAppleAccessToken(AppleLoginRequest request) {
+        String providerId = request.getUserIdentifier();
+
+        log.info(providerId);
+        if (!userService.existsByProviderId(providerId)) {
+            Map<String, Object> userInfo = appleOauth.authenticateWithApple(request);
+            userService.saveUser(userInfo);
+        }
+        User user = userService.findByProviderId(providerId).orElseThrow();
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("name", user.getName());
+        claims.put("email", user.getEmail());
+        claims.put("roles", user.getRoles().stream()
+                .filter(role -> role == UserRole.USER)
+                .map(UserRole::getAuthority)
+                .toList());
+
+        String access_token = jwtProvider.generateAccessToken(claims, providerId);
+        String refresh_token = jwtProvider.generateRefreshToken(providerId);
+
+
+        Map<String, Object> returnValue = new HashMap<>();
+        returnValue.put("access_token", access_token);
+        returnValue.put("refresh_token", refresh_token);
+
+        return returnValue;
     }
 }
