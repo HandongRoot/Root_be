@@ -25,7 +25,7 @@ public class ContentController {
 
 
     @PostMapping("/{userId}")
-    @Operation(summary = "content 등록 기능", description = "해당 유저가 category 속에 content 생성")
+    @Operation(summary = "content 등록 기능", description = "해당 유저가 content 생성")
     public ResponseEntity<String> saveContent(@PathVariable UUID userId, @RequestBody ContentCreateDto dto) {
         try {
 //            checkVaildate(userId);
