@@ -56,7 +56,6 @@ public class JwtProvider {
                         .toList();
 
         String userId = claims.get("userId").toString();
-        String email = claims.get("email").toString();
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId);
 

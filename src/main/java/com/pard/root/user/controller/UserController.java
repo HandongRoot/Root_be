@@ -1,5 +1,6 @@
 package com.pard.root.user.controller;
 
+import com.pard.root.auth.oauth.service.OauthService;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -22,14 +24,11 @@ import java.util.UUID;
 @Tag(name = "User API", description = "유저 관련 API")
 public class UserController {
     private final UserService userService;
+    private final OauthService oauthService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, OauthService oauthService) {
         this.userService = userService;
-    }
-
-    @PostMapping("/create")
-    public void createUser(@RequestBody UserCreateDto dto){
-        userService.createUser(dto);
+        this.oauthService = oauthService;
     }
 
     @GetMapping("/{userId}")
@@ -61,7 +60,10 @@ public class UserController {
     public ResponseEntity<String> deleteUser(HttpServletRequest request ,@PathVariable UUID userId) {
         try {
 //            checkVaildate(userId);
-            return userService.deleteUser(request, userId);
+        return CompletableFuture.runAsync(() -> oauthService.unlink(userId))
+                .thenApply(v -> userService.deleteUser(request, userId))
+                .exceptionally(ex -> ResponseEntity.badRequest().body("Error: " + ex.getMessage()))
+                .join();
         } catch (Exception ex){
             return ResponseEntity.badRequest().build();
         }
