@@ -34,14 +34,14 @@ public class CategoryService {
     private final ContentRepository contentRepo;
     private final ContentCategoryRepository contentCategoryRepo;
 
-    public void save(CategoryCreateDto categoryCreateDto) {
+    public Long save(CategoryCreateDto categoryCreateDto) {
         User user = userRepo.findById(categoryCreateDto.getUserId()).orElse(null);
 //        SecurityUtil.validateUserAccess(categoryCreateDto.getUserId());
-        categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0));
+        return categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0)).getId();
     }
 
     public Category findById(Long id) {
-        return categoryRepo.findById(id).orElseThrow();
+        return categoryRepo.findById(id).orElse(null);
     }
 
     public List<CategoryReadDto> findAll(UUID userId) {

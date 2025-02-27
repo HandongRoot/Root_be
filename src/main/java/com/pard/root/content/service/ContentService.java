@@ -33,9 +33,24 @@ public class ContentService {
     private final UserService userService;
 
 
-    public void saveContent(UUID userId, ContentCreateDto dto){
+    public void saveContent(UUID userId, ContentCreateDto dto, Long categoryId){
         User user = userService.findById(userId);
-        contentRepository.save(Content.toEntity(user, dto));
+
+        if (categoryId == null){
+            contentRepository.save(Content.toEntity(user, dto));
+        }
+        else {
+            Content content = contentRepository.save(Content.toEntity(user, dto));
+            Category category = categoryService.findById(categoryId);
+
+            if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
+                ContentCategory contentCategory = new ContentCategory(content, category);
+                contentCategoryRepository.save(contentCategory);
+                categoryService.incrementContentCount(categoryId);
+            } else {
+                throw new AccessDeniedException("User does not have access to category ID " + categoryId);
+            }
+        }
     }
 
     public List<ContentReadDto> findByCategoryId(Long categoryId, UUID userId ){

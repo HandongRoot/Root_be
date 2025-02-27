@@ -4,6 +4,7 @@ package com.pard.root.folder.controller;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
+import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.config.security.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,8 +34,8 @@ public class CategoryController {
     @Operation(summary = "Category 등록 기능", description = "해당 유저가 Category 생성")
     public ResponseEntity<?> saveCategory(@RequestBody CategoryCreateDto dto) {
         try {
-            categoryService.save(dto);
-            return ResponseEntity.ok("Category saved successfully");
+            Long id = categoryService.save(dto);
+            return ResponseEntity.ok(id);
 //        } catch (CategoryAlreadyExistsException e) {
 //            log.error("Category already exists: {}", dto.getTitle(), e);
 //            return ResponseEntity.status(HttpStatus.CONFLICT).body("Category already exists");
