@@ -48,11 +48,15 @@ public class OauthService {
         String providerId = (String) userInfo.get("sub");
 
         log.info(providerId);
+        User user = new User();
         if (!userService.existsByProviderId(providerId)) {
             userService.saveUser(userInfo);
+        } else {
+            user = userService.findByProviderId(providerId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
         }
 
-        return generateTokens(providerId);
+        return generateTokens(user, providerId);
     }
 
     public void unlink(UUID userId) {
@@ -73,17 +77,20 @@ public class OauthService {
         String providerId = request.getUserIdentifier();
 
         log.info(providerId);
+        User user = new User();
         if (!userService.existsByProviderId(providerId)) {
             Map<String, Object> userInfo = appleOauth.authenticateWithApple(request);
             userService.saveUser(userInfo);
+        } else {
+            user = userService.findByProviderId(providerId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
         }
 
-        return generateTokens(providerId);
+        return generateTokens(user, providerId);
     }
 
-    private Map<String, Object> generateTokens(String providerId) {
-        User user = userService.findByProviderId(providerId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    private Map<String, Object> generateTokens(User user, String providerId) {
+        userService.updateUserStateToActive(providerId);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
