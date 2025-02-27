@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,30 +51,15 @@ public class OauthService {
         if (!userService.existsByProviderId(providerId)) {
             userService.saveUser(userInfo);
         }
-        User user = userService.findByProviderId(providerId).orElseThrow();
 
+        return generateTokens(providerId);
+    }
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
-        claims.put("name", user.getName());
-        claims.put("email", user.getEmail());
-        claims.put("roles", user.getRoles().stream()
-                .filter(role -> role == UserRole.USER)
-                .map(UserRole::getAuthority)
-                .toList());
-
-        String access_token = jwtProvider.generateAccessToken(claims, providerId);
-        String refresh_token = jwtProvider.generateRefreshToken(providerId);
-
-        userInfo.put("refresh_token", refresh_token);
-        tokenService.saveOrUpdateRefreshToken(userInfo);
-
-
-        Map<String, Object> returnValue = new HashMap<>();
-        returnValue.put("access_token", access_token);
-        returnValue.put("refresh_token", refresh_token);
-
-        return returnValue;
+    public void unlink(UUID userId) {
+        User user = userService.findById(userId);
+        SocialLoginType loginType = SocialLoginType.fromProvider(user.getProvider());
+        SocialOauth socialOauth = this.findSocialOauthByType(loginType);
+        socialOauth.unlink(user.getProviderId());
     }
 
     private SocialOauth findSocialOauthByType(SocialLoginType socialLoginType) {
@@ -91,24 +77,32 @@ public class OauthService {
             Map<String, Object> userInfo = appleOauth.authenticateWithApple(request);
             userService.saveUser(userInfo);
         }
-        User user = userService.findByProviderId(providerId).orElseThrow();
+
+        return generateTokens(providerId);
+    }
+
+    private Map<String, Object> generateTokens(String providerId) {
+        User user = userService.findByProviderId(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
-        claims.put("name", user.getName());
-        claims.put("email", user.getEmail());
         claims.put("roles", user.getRoles().stream()
                 .filter(role -> role == UserRole.USER)
                 .map(UserRole::getAuthority)
                 .toList());
 
-        String access_token = jwtProvider.generateAccessToken(claims, providerId);
-        String refresh_token = jwtProvider.generateRefreshToken(providerId);
+        String accessToken = jwtProvider.generateAccessToken(claims, providerId);
+        String refreshToken = jwtProvider.generateRefreshToken(providerId);
 
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("sub", providerId);
+        userInfo.put("refresh_token", refreshToken);
+        tokenService.saveOrUpdateRefreshToken(userInfo);
 
         Map<String, Object> returnValue = new HashMap<>();
-        returnValue.put("access_token", access_token);
-        returnValue.put("refresh_token", refresh_token);
+        returnValue.put("access_token", accessToken);
+        returnValue.put("refresh_token", refreshToken);
 
         return returnValue;
     }
