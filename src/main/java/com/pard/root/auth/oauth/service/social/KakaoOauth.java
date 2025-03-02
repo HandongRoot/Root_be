@@ -2,6 +2,7 @@ package com.pard.root.auth.oauth.service.social;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pard.root.auth.token.service.SocialRefreshTokenService;
 import com.pard.root.helper.constants.SocialLoginType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,15 @@ public class KakaoOauth implements SocialOauth {
     private String clientSecret;
     @Value("${oauth.kakao.redirect-uri}")
     private String redirectUri;
-    @Value("${oauth.kakao.token-uri}")
+    @Value("${sns.kakao.token-uri}")
     private String tokenUri;
-    @Value("${oauth.kakao.user-info-uri}")
+    @Value("${sns.kakao.user-info-uri}")
     private String userInfoUri;
+    @Value("${sns.kakao.unlink-uri}")
+    private String unlinkUri;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final SocialRefreshTokenService socialRefreshTokenService;
 
     @Override
     public SocialLoginType type() {
@@ -69,7 +73,7 @@ public class KakaoOauth implements SocialOauth {
             tokenInfo.put("refresh_token", jsonNode.get("refresh_token").asText());
 
             return tokenInfo;
-        } catch (Exception e) {
+        } catch (Exception e)  {
             throw new RuntimeException("Failed to parse Kakao OAuth token response", e);
         }
     }
@@ -89,9 +93,13 @@ public class KakaoOauth implements SocialOauth {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
 
+            String providerId = jsonNode.get("id").asText();
+            String refreshToken = token.get("refresh_token").toString() == null ? "" : token.get("refresh_token").toString();
+            socialRefreshTokenService.createSocialRefreshToken(providerId, refreshToken);
+
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("provider", "kakao");
-            userInfo.put("sub", jsonNode.get("id").asText());
+            userInfo.put("sub", providerId);
             userInfo.put("name", jsonNode.path("properties").path("nickname").asText());
             userInfo.put("email", jsonNode.path("kakao_account").path("email").asText());
             userInfo.put("picture", jsonNode.path("properties").path("profile_image").asText());
@@ -99,6 +107,50 @@ public class KakaoOauth implements SocialOauth {
             return userInfo;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse Kakao user info response", e);
+        }
+    }
+
+    private String refreshAccessTokenForRefreshToken(String refreshToken){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        String requestBody = "grant_type=refresh_token"
+                + "&client_id=" + clientId
+                + "&client_secret=" + clientSecret
+                + "&redirect_uri=" + redirectUri
+                + "&refresh_token=" + refreshToken;
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.exchange(tokenUri, HttpMethod.POST, request, String.class);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(response.getBody());
+            return jsonNode.get("access_token").asText();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse Kakao OAuth token response", e);
+        }
+    }
+
+    @Override
+    public void unlink(String providerId) {
+        String socialRefreshToken = socialRefreshTokenService.getRefreshToken(providerId);
+
+        if(socialRefreshToken != null){
+            socialRefreshTokenService.deleteSocialRefreshToken(providerId);
+            String accessToken = refreshAccessTokenForRefreshToken(socialRefreshToken);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            try{
+                HttpEntity<String> request = new HttpEntity<>(headers);
+                ResponseEntity<String> response = restTemplate.exchange(unlinkUri, HttpMethod.POST, request, String.class);
+
+                log.info("Kakao unlink success. Response: {}", response.getBody());
+            } catch (Exception e) {
+                log.error("Kakao unlink failed. providerId: {}, body: {}", providerId, e.getMessage());
+                throw new RuntimeException("Kakao unlink failed");
+            }
         }
     }
 

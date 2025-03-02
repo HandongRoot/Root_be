@@ -69,6 +69,14 @@ public class User extends BaseTimeEntity {
                 .provider(userCreateDto.getProvider())
                 .providerId(userCreateDto.getProviderId())
                 .roles(Set.of(UserRole.USER))
+                .userState(UserState.ACTIVE)
                 .build();
+    }
+
+    public void activate() {
+        if (this.userState == UserState.ACTIVE) {
+            throw new IllegalStateException("User is already active.");
+        }
+        this.userState = UserState.ACTIVE;
     }
 }

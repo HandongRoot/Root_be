@@ -1,6 +1,7 @@
 package com.pard.root.auth.oauth.controller;
 
 
+import com.pard.root.auth.oauth.converter.AppleLoginRequest;
 import com.pard.root.auth.token.service.TokenService;
 import com.pard.root.helper.constants.SocialLoginType;
 import com.pard.root.auth.oauth.service.OauthService;
@@ -29,6 +30,17 @@ public class OauthController {
     public void socialLogin(@PathVariable("socialLoginType") SocialLoginType socialLoginType) {
         log.info(">> 사용자로부터 SNS 로그인 요청을 받음 :: {} Social Login", socialLoginType);
         oauthService.request(socialLoginType);
+    }
+
+    @GetMapping("/apple")
+    @Operation(summary = "에플 로그인", description = "에플 로그인을 처리합니다.")
+    public ResponseEntity<?> authenticateWithApple(@RequestBody AppleLoginRequest request) {
+        try {
+            Map<String, Object> tokens = oauthService.requestAppleAccessToken(request);
+            return ResponseEntity.ok(tokens);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping(value = "/{socialLoginType}/callback")

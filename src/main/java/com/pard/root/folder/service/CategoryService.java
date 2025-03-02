@@ -2,6 +2,8 @@ package com.pard.root.folder.service;
 
 import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.entity.Content;
+import com.pard.root.content.entity.ContentCategory;
+import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
@@ -10,7 +12,6 @@ import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
-import com.pard.root.config.security.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -32,15 +32,16 @@ public class CategoryService {
     private final CategoryRepo categoryRepo;
     private final UserRepository userRepo;
     private final ContentRepository contentRepo;
+    private final ContentCategoryRepository contentCategoryRepo;
 
-    public void save(CategoryCreateDto categoryCreateDto) {
+    public Long save(CategoryCreateDto categoryCreateDto) {
         User user = userRepo.findById(categoryCreateDto.getUserId()).orElse(null);
 //        SecurityUtil.validateUserAccess(categoryCreateDto.getUserId());
-        categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0));
+        return categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0)).getId();
     }
 
     public Category findById(Long id) {
-        return categoryRepo.findById(id).orElseThrow();
+        return categoryRepo.findById(id).orElse(null);
     }
 
     public List<CategoryReadDto> findAll(UUID userId) {
@@ -55,7 +56,7 @@ public class CategoryService {
 
     public List<ContentReadDto> findByCategory(Category category){
         Pageable Toptwo = PageRequest.of(0, 2);
-        List<Content> contents = contentRepo.findByCategory(category, Toptwo);
+        List<Content> contents = contentRepo.findByCategoryWithPageable(category, Toptwo);
 
         return contents.isEmpty() ? new ArrayList<>() : contents.stream()
                 .map(ContentReadDto::new)
@@ -100,16 +101,23 @@ public class CategoryService {
         categoryRepo.save(category);
     }
 
+    @Transactional
     public void deleteCategory(Long categoryId, UUID userId) {
         Category category = findById(categoryId);
 
-        if(checkToUserId(userId, category.getUser().getId())) {
-            contentRepo.removeCategoryFromContents(category);
-            categoryRepo.deleteById(categoryId);
+        if (checkToUserId(userId, category.getUser().getId())) {
+            List<ContentCategory> contentCategories = contentCategoryRepo.findByCategory(category);
+
+            for (ContentCategory contentCategory : contentCategories) {
+                decrementContentCount(contentCategory.getCategory().getId());
+            }
+
+            categoryRepo.delete(category);
         } else {
             throw new RuntimeException("You are not the owner of this category.");
         }
     }
+
 
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
         return userId.equals(comparisonId);

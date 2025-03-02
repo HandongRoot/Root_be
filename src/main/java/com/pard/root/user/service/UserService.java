@@ -55,12 +55,16 @@ public class UserService {
 
     public Optional<User> findByProviderId(String providerId) { return userRepository.findByProviderId(providerId); }
 
-    public void createUser(UserCreateDto dto){
-        User user = userRepository.save(User.toEntity(dto));
-    }
-
     public boolean existsByProviderId(String providerId) {
         return userRepository.existsByProviderId(providerId);
+    }
+
+    @Transactional
+    public void updateUserStateToActive(String providerId) {
+        User user = userRepository.findByProviderId(providerId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.activate();
     }
 
     public ResponseEntity<String> logout(HttpServletRequest request) {
@@ -71,6 +75,7 @@ public class UserService {
         blacklistedTokenService.addToBlacklist(accessToken);
 
         String providerId = jwtProvider.parseToken(accessToken).getSubject();
+        userRepository.updateUserState(findByProviderId(providerId).orElseThrow().getId(), UserState.DEACTIVATED);
         tokenService.deleteByProviderId(providerId);
 
         return ResponseEntity.ok("Logout successful");

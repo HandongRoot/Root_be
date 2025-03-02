@@ -3,14 +3,16 @@ package com.pard.root.content.service;
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentReadDto;
 import com.pard.root.content.dto.ContentUpdateDto;
+import com.pard.root.content.dto.ContentWithListCategoryReadDto;
 import com.pard.root.content.entity.Content;
+import com.pard.root.content.entity.ContentCategory;
+import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.service.CategoryService;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.service.UserService;
-import com.pard.root.config.security.util.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,20 +20,37 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
 
+    private final ContentCategoryRepository contentCategoryRepository;
     private final ContentRepository contentRepository;
     private final CategoryService categoryService;
     private final UserService userService;
 
 
-    public void saveContent(UUID userId, ContentCreateDto dto){
+    public void saveContent(UUID userId, ContentCreateDto dto, Long categoryId){
         User user = userService.findById(userId);
-        contentRepository.save(Content.toEntity(null, user, dto));
+
+        if (categoryId == null){
+            contentRepository.save(Content.toEntity(user, dto));
+        }
+        else {
+            Content content = contentRepository.save(Content.toEntity(user, dto));
+            Category category = categoryService.findById(categoryId);
+
+            if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
+                ContentCategory contentCategory = new ContentCategory(content, category);
+                contentCategoryRepository.save(contentCategory);
+                categoryService.incrementContentCount(categoryId);
+            } else {
+                throw new AccessDeniedException("User does not have access to category ID " + categoryId);
+            }
+        }
     }
 
     public List<ContentReadDto> findByCategoryId(Long categoryId, UUID userId ){
@@ -56,7 +75,7 @@ public class ContentService {
                 .toList();
     }
 
-    public List<ContentReadDto> findByUserIdAndTitleContains (UUID userId, String title){
+    public List<ContentWithListCategoryReadDto> findByUserIdAndTitleContains (UUID userId, String title){
         User user = userService.findById(userId);
         List<Content> contents = contentRepository.findByUserAndTitleContains(user, title);
 
@@ -65,44 +84,70 @@ public class ContentService {
         } else {
             return contents.stream()
                     .map(content -> {
-                        Category category = content.getCategory();
-                        CategoryReadDto dto = (category != null) ? new CategoryReadDto(category) : null;
-                        return new ContentReadDto(content, dto);
+                        List<CategoryReadDto> categories = contentCategoryRepository.findByContent(content).stream()
+                                .map(contentCategory -> new CategoryReadDto(contentCategory.getCategory()))
+                                .toList();
+                        return new ContentWithListCategoryReadDto(content, categories);
                     })
                     .toList();
         }
     }
 
     @Transactional
-    public void changeCategory(Long[] contentIds, Long categoryId, UUID userId) {
-        Category category = (categoryId != 0) ? categoryService.findById(categoryId) : null;
+    public void addCategoryToContent(Long[] contentIds, Long categoryId, UUID userId) {
+        Category category = categoryService.findById(categoryId);
 
         List<Content> contents = Arrays.stream(contentIds)
                 .map(id -> contentRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Content not found with id: " + id)))
                 .toList();
+
         for (Content content : contents) {
-            if (content.getCategory() != null && content.getCategory().getId().equals(categoryId)) {
-                throw new IllegalArgumentException("Content with ID " + content.getId() + " is already in the selected category.");
+            boolean exists = contentCategoryRepository.existsByContentAndCategory(content, category);
+            if (exists) {
+                continue;
             }
 
-            if (checkToUserId(content.getUser().getId(), userId) && category == null) {
-                if (content.getCategory() != null) {
-                    categoryService.decrementContentCount(content.getCategory().getId());
+            if (checkToUserId(content.getUser().getId(), userId)) {
+                if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
+                    ContentCategory contentCategory = new ContentCategory(content, category);
+                    contentCategoryRepository.save(contentCategory);
+                    categoryService.incrementContentCount(categoryId);
+                } else {
+                    throw new AccessDeniedException("User does not have access to category ID " + categoryId);
                 }
-                content.changeCategory(null);
-            } else if (checkToUserId(content.getUser().getId(), category.getUser().getId())) {
-                if (content.getCategory() != null) {
-                    categoryService.decrementContentCount(content.getCategory().getId());
-                    log.info("\uD83D\uDCCD Search decrementContentCount");
-                }
-                content.changeCategory(category);
-                categoryService.incrementContentCount(categoryId);
-            } else {
-                throw new AccessDeniedException("User does not have access to content ID " + content.getId());
             }
         }
     }
+
+    @Transactional
+    public boolean changeCategoryToContent(Long contentId, Long beforeCategoryId, Long afterCategoryId, UUID userId) {
+        Category afterCategory = (afterCategoryId != 0) ? categoryService.findById(afterCategoryId) : null;
+        Category beforeCategory = categoryService.findById(beforeCategoryId);
+
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+
+        if (afterCategory == beforeCategory) {
+            return false;
+        }
+
+        if (checkToUserId(content.getUser().getId(), userId)) {
+            contentCategoryRepository.deleteByContentAndCategory(content, beforeCategory);
+
+            if (afterCategory != null) {
+                boolean exists = contentCategoryRepository.existsByContentAndCategory(content, afterCategory);
+                if (!exists) {
+                    ContentCategory newContentCategory = new ContentCategory(content, afterCategory);
+                    contentCategoryRepository.save(newContentCategory);
+                    categoryService.incrementContentCount(afterCategoryId);
+                }
+            }
+            categoryService.decrementContentCount(beforeCategoryId);
+        }
+        return true;
+    }
+
 
     @Transactional
     public void updateTitle(UUID userId, Long contentId, ContentUpdateDto dto) {
@@ -115,17 +160,27 @@ public class ContentService {
         }
     }
 
-    public void deleteContent(Long contentId, UUID userId){
+    @Transactional
+    public void deleteContent(Long contentId, UUID userId) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(() -> new IllegalArgumentException("Content not found for id: " + contentId));
-        UUID userIdInContent = content.getUser().getId();
-        if(checkToUserId(userId, userIdInContent)){
-            contentRepository.delete(content);
-            if (content.getCategory() != null) { categoryService.decrementContentCount(content.getCategory().getId()); }
-        }
-        else throw new AccessDeniedException("User does not have access to this category.");
 
+        UUID userIdInContent = content.getUser().getId();
+
+        if (checkToUserId(userId, userIdInContent)) {
+            List<ContentCategory> contentCategories = contentCategoryRepository.findByContent(content);
+
+            for (ContentCategory contentCategory : contentCategories) {
+                categoryService.decrementContentCount(contentCategory.getCategory().getId());
+            }
+
+            contentCategoryRepository.deleteByContent(content);
+            contentRepository.delete(content);
+        } else {
+            throw new AccessDeniedException("User does not have access to this content.");
+        }
     }
+
 
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
         return userId.equals(comparisonId);

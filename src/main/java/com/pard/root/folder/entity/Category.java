@@ -1,6 +1,7 @@
 package com.pard.root.folder.entity;
 
 import com.pard.root.content.entity.Content;
+import com.pard.root.content.entity.ContentCategory;
 import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.user.entity.User;
 import com.pard.root.common.entity.BaseTimeEntity;
@@ -26,16 +27,13 @@ public class Category extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<Content> Contents = new ArrayList<>();
+    private List<ContentCategory> contentCategories = new ArrayList<>();
 
     @Column(nullable = false , name= "category_name")
     private String title;
 
     @Column(name = "count_contents")
     private Integer countContents;
-
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Content> contents;
 
     public static Category toEntity(User user, String title, Integer countContents) {
         return Category.builder()
