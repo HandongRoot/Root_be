@@ -63,7 +63,12 @@ public class OauthService {
         User user = userService.findById(userId);
         SocialLoginType loginType = SocialLoginType.fromProvider(user.getProvider());
         SocialOauth socialOauth = this.findSocialOauthByType(loginType);
-        socialOauth.unlink(user.getProviderId());
+
+        if (socialOauth != null){
+            socialOauth.unlink(user.getProviderId());
+        } else {
+            appleOauth.unlink(user.getProviderId());
+        }
     }
 
     private SocialOauth findSocialOauthByType(SocialLoginType socialLoginType) {

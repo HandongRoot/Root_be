@@ -44,8 +44,6 @@ public class AppleOauth {
 
     @Value("${sns.apple.url}")
     private String APPLE_URL;
-    @Value("${sns.apple.userInfo}")
-    private String APPLE_USER_INFO;
     @Value("${sns.apple.clientId}")
     private String APPLE_CLIENT_ID;
     @Value("${sns.apple.keyId}")
@@ -60,6 +58,8 @@ public class AppleOauth {
     private String APPLE_KEY_URL;
     @Value("${sns.apple.privateKeyPath}")
     private String APPLE_PRIVATE_KEY_PATH;
+    @Value("${sns.apple.revoke}")
+    private String APPLE_REVOKE_URL;
     @Value("${jwt.refresh.token.expiration}")
     private long refreshExpiration;
 
@@ -167,7 +167,11 @@ public class AppleOauth {
         body.add("redirect_uri", APPLE_REDIRECT_URI);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(APPLE_TOKEN_URL, HttpMethod.POST, request, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(
+                APPLE_TOKEN_URL,
+                HttpMethod.POST,
+                request,
+                String.class);
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -222,6 +226,45 @@ public class AppleOauth {
             PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
 
             return converter.getPrivateKey(privateKeyInfo);
+        }
+    }
+
+    /**
+     * Apple ID와의 소셜 로그인 연결을 해제하는 메서드.
+     * Apple OAuth 2.0의 refresh_token을 사용하여 Apple의 인증 서버에 토큰 철회 요청을 보냅니다.
+     * @param providerId 소셜 로그인 제공자 ID
+     */
+    public void unlink(String providerId) {
+        String socialRefreshToken = socialRefreshTokenService.getRefreshToken(providerId);
+
+        if(socialRefreshToken != null){
+            socialRefreshTokenService.deleteSocialRefreshToken(providerId);
+
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("client_id", APPLE_CLIENT_ID);
+            body.add("token", socialRefreshToken);
+            body.add("client_secret", generateClientSecret());
+            body.add("token_type_hint", "refresh_token");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.exchange(
+                    APPLE_REVOKE_URL,
+                    HttpMethod.POST,
+                    request,
+                    String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("✅ 200: Apple ID Unlink Success!");
+                System.out.println("Response Body: " + response.getBody());
+            } else {
+                System.err.println("❌ 400: Apple ID Unlink Failed!");
+                System.err.println("Response Body: " + response.getBody());
+            }
+        } else {
+            System.err.println("⚠ No refresh token found for provider: " + providerId);
         }
     }
 }

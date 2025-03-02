@@ -75,6 +75,7 @@ public class UserService {
         blacklistedTokenService.addToBlacklist(accessToken);
 
         String providerId = jwtProvider.parseToken(accessToken).getSubject();
+        userRepository.updateUserState(findByProviderId(providerId).orElseThrow().getId(), UserState.DEACTIVATED);
         tokenService.deleteByProviderId(providerId);
 
         return ResponseEntity.ok("Logout successful");
