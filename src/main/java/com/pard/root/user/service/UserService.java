@@ -1,9 +1,8 @@
 package com.pard.root.user.service;
 
+import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
 import com.pard.root.auth.token.repo.TokenRepository;
 import com.pard.root.config.security.service.JwtProvider;
-import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
-import com.pard.root.auth.token.service.TokenService;
 import com.pard.root.exception.user.UserNotFoundException;
 import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.dto.UserCreateDto;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,7 +61,7 @@ public class UserService {
     @Transactional
     public void updateUserStateToActive(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() ->  new UserNotFoundException("User not found with providerId: " + providerId));
+                .orElseThrow(() ->  new UserNotFoundException(providerId));
         user.activate();
     }
 
@@ -84,7 +82,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> deleteUser(HttpServletRequest request, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User does not exist."));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         String accessToken = jwtProvider.resolveToken(request);
         if (accessToken == null) {
