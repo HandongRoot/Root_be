@@ -38,8 +38,8 @@ public class BlacklistedTokenService {
     }
 
 
-    // System time 기준 매 정각마다 BlackList token 삭제
-    @Scheduled(cron = "0 0 * * * ?")
+    // System time 기준 매일 새벽 3시마다 BlackList token 삭제
+    @Scheduled(cron = "0 0 3 * * ?")
     public void deleteBlacklistedTokens() {
         blacklistedTokenRepository.deleteByExpirationTimeBefore(new Date());
         log.info("Deleted blacklisted tokens");
