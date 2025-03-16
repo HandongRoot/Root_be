@@ -1,11 +1,13 @@
 package com.pard.root.auth.token.service;
 
 import com.pard.root.config.security.service.JwtProvider;
+import com.pard.root.exception.user.UserNotFoundException;
 import com.pard.root.helper.constants.UserRole;
 import com.pard.root.auth.token.entity.RefreshToken;
 import com.pard.root.auth.token.repo.TokenRepository;
 import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
+import com.pard.root.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,39 +22,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TokenService {
     private final TokenRepository tokenRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtProvider jwtProvider;
-
-    @Transactional
-    public void saveOrUpdateRefreshToken(Map<String, Object> userInfo) {
-        if (userInfo.get("sub") == null) {
-            throw new IllegalArgumentException("Provider ID cannot be null or empty");
-        }
-
-        Optional<RefreshToken> existingToken = tokenRepository.findByProviderId(userInfo.get("sub").toString());
-
-        if (existingToken.isPresent()) {
-            if (!existingToken.get().getToken().equals(userInfo.get("refresh_token"))) {
-                RefreshToken refreshTokenEntity = existingToken.get();
-                refreshTokenEntity = RefreshToken.builder()
-                        .id(refreshTokenEntity.getId())
-                        .providerId((String) userInfo.get("sub"))
-                        .token((String) userInfo.get("refresh_token"))
-                        .email((String) userInfo.get("email"))
-                        .name((String) userInfo.get("name"))
-                        .build();
-                tokenRepository.save(refreshTokenEntity);
-            }
-        } else {
-            RefreshToken refreshTokenEntity = RefreshToken.builder()
-                    .providerId((String) userInfo.get("sub"))
-                    .token((String) userInfo.get("refresh_token"))
-                    .email((String) userInfo.get("email"))
-                    .name((String) userInfo.get("name"))
-                    .build();
-            tokenRepository.save(refreshTokenEntity);
-        }
-    }
 
     public Map<String, Object> refreshAccessToken(Map<String, String> requestBody) {
         log.info("Received refresh token request: {}", requestBody);
@@ -73,7 +44,8 @@ public class TokenService {
 
         String providerId = storedToken.getProviderId();
         String newRefreshToken = jwtProvider.generateRefreshToken(providerId);
-        User user = userRepository.findByProviderId(providerId).orElseThrow(RuntimeException::new);
+        User user = userService.findByProviderId(providerId)
+                .orElseThrow(() -> new UserNotFoundException(providerId));
         RefreshToken refreshTokenEntity = RefreshToken.builder()
                 .providerId(providerId)
                 .token(newRefreshToken)
@@ -82,28 +54,57 @@ public class TokenService {
                 .build();
         tokenRepository.save(refreshTokenEntity);
 
+        return generateTokens(user, providerId);
+    }
+
+    public Map<String, Object> generateTokens(User user, String providerId) {
+        userService.updateUserStateToActive(providerId);
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
-        claims.put("name", user.getName());
-        claims.put("email", user.getEmail());
         claims.put("roles", user.getRoles().stream()
                 .filter(role -> role == UserRole.USER)
                 .map(UserRole::getAuthority)
                 .toList());
 
-        String access_token = jwtProvider.generateAccessToken(claims, providerId);
-
-        log.info("Generated access providerId: {}",  jwtProvider.parseToken(access_token).getSubject());
-        log.info("Generated refreshToken providerId: {}",  jwtProvider.parseToken(refreshToken).getSubject());
+        String accessToken = jwtProvider.generateAccessToken(claims, providerId);
+        String refreshToken = jwtProvider.generateRefreshToken(providerId);
 
         Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("access_token", access_token);
+        userInfo.put("sub", providerId);
         userInfo.put("refresh_token", refreshToken);
+        this.saveOrUpdateRefreshToken(userInfo);
 
-        return userInfo;
+        Map<String, Object> returnValue = new HashMap<>();
+        returnValue.put("access_token", accessToken);
+        returnValue.put("refresh_token", refreshToken);
+
+        return returnValue;
     }
 
-    public void deleteByProviderId(String providerId) {
-        tokenRepository.deleteByProviderId(providerId);
+    private void saveOrUpdateRefreshToken(Map<String, Object> userInfo) {
+        if (userInfo.get("sub") == null) {
+            throw new IllegalArgumentException("Provider ID cannot be null or empty");
+        }
+
+        Optional<RefreshToken> existingToken = tokenRepository.findByProviderId(userInfo.get("sub").toString());
+
+        if (existingToken.isPresent()) {
+            if (!existingToken.get().getToken().equals(userInfo.get("refresh_token"))) {
+                RefreshToken refreshTokenEntity = existingToken.get();
+                refreshTokenEntity = RefreshToken.builder()
+                        .id(refreshTokenEntity.getId())
+                        .providerId((String) userInfo.get("sub"))
+                        .token((String) userInfo.get("refresh_token"))
+                        .build();
+                tokenRepository.save(refreshTokenEntity);
+            }
+        } else {
+            RefreshToken refreshTokenEntity = RefreshToken.builder()
+                    .providerId((String) userInfo.get("sub"))
+                    .token((String) userInfo.get("refresh_token"))
+                    .build();
+            tokenRepository.save(refreshTokenEntity);
+        }
     }
 }

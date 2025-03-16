@@ -1,8 +1,10 @@
 package com.pard.root.user.service;
 
+import com.pard.root.auth.token.repo.TokenRepository;
 import com.pard.root.config.security.service.JwtProvider;
 import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
 import com.pard.root.auth.token.service.TokenService;
+import com.pard.root.exception.user.UserNotFoundException;
 import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
@@ -26,11 +28,11 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final BlacklistedTokenService blacklistedTokenService;
-    private final TokenService tokenService;
+    private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
 
     @Transactional
-    public String saveUser(Map<String, Object> userInfo) {
+    public User saveUser(Map<String, Object> userInfo) {
         UserCreateDto userCreateDto = new UserCreateDto();
         userCreateDto.setName((String) userInfo.get("name"));
         userCreateDto.setEmail((String) userInfo.get("email"));
@@ -39,10 +41,7 @@ public class UserService {
         userCreateDto.setProviderId((String) userInfo.get("sub"));
 
         Optional<User> existingUser = userRepository.findByProviderId(userCreateDto.getProviderId());
-        existingUser.orElseGet(() -> userRepository.save(User.toEntity(userCreateDto)));
-        userRepository.flush();
-
-        return existingUser.map(User::getProviderId).orElse(null);
+        return existingUser.orElseGet(() -> userRepository.save(User.toEntity(userCreateDto)));
     }
 
     public User findById(UUID id) {
@@ -50,7 +49,9 @@ public class UserService {
     }
 
     public UserReadDto findByUserId(UUID id) {
-        return new UserReadDto(Objects.requireNonNull(userRepository.findById(id).orElse(null)));
+        return userRepository.findById(id)
+                .map(UserReadDto::new)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
     }
 
     public Optional<User> findByProviderId(String providerId) { return userRepository.findByProviderId(providerId); }
@@ -62,8 +63,7 @@ public class UserService {
     @Transactional
     public void updateUserStateToActive(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
+                .orElseThrow(() ->  new UserNotFoundException("User not found with providerId: " + providerId));
         user.activate();
     }
 
@@ -76,7 +76,7 @@ public class UserService {
 
         String providerId = jwtProvider.parseToken(accessToken).getSubject();
         userRepository.updateUserState(findByProviderId(providerId).orElseThrow().getId(), UserState.DEACTIVATED);
-        tokenService.deleteByProviderId(providerId);
+        tokenRepository.deleteByProviderId(providerId);
 
         return ResponseEntity.ok("Logout successful");
     }
@@ -95,7 +95,7 @@ public class UserService {
         userRepository.updateUserState(user.getId(), UserState.DEACTIVATED);
 
         String providerId = jwtProvider.parseToken(accessToken).getSubject();
-        tokenService.deleteByProviderId(providerId);
+        tokenRepository.deleteByProviderId(providerId);
 
 
         return ResponseEntity.ok("User has been successfully deleted and logged out.");
