@@ -8,6 +8,8 @@ import com.pard.root.content.entity.Content;
 import com.pard.root.content.entity.ContentCategory;
 import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
+import com.pard.root.exception.content.NotAccessedContentException;
+import com.pard.root.exception.content.NotFoundContentException;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.service.CategoryService;
@@ -26,7 +28,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
-
     private final ContentCategoryRepository contentCategoryRepository;
     private final ContentRepository contentRepository;
     private final CategoryService categoryService;
@@ -126,7 +127,7 @@ public class ContentService {
         Category beforeCategory = categoryService.findById(beforeCategoryId);
 
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+                .orElseThrow(() -> new NotFoundContentException(contentId));
 
         if (afterCategory == beforeCategory) {
             return false;
@@ -177,7 +178,7 @@ public class ContentService {
             contentCategoryRepository.deleteByContent(content);
             contentRepository.delete(content);
         } else {
-            throw new AccessDeniedException("User does not have access to this content.");
+            throw new NotAccessedContentException(contentId);
         }
     }
 
