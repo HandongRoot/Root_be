@@ -1,11 +1,8 @@
 package com.pard.root.user.controller;
 
 import com.pard.root.auth.oauth.service.OauthService;
-import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.service.UserService;
-import com.pard.root.config.security.util.SecurityUtil;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -34,42 +31,29 @@ public class UserController {
     @GetMapping("/{userId}")
     @Operation(summary = "User 정보보기", description = "해당 유저의 정보를 보는 방법")
     public ResponseEntity<UserReadDto> findById(@PathVariable UUID userId) {
-        try{
-//            checkVaildate(userId);
-            UserReadDto userReadDto = userService.findByUserId(userId);
-            return ResponseEntity.ok(userReadDto);
-        } catch (Exception ex){
-            log.error(ex.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+//            checkValidate(userId);
+        UserReadDto userReadDto = userService.findByUserId(userId);
+        return ResponseEntity.ok(userReadDto);
     }
 
     @PostMapping("/logout/{userId}")
     @Operation(summary = "로그 아웃", description = "현재 인증된 사용자를 로그아웃합니다.")
     public ResponseEntity<String> logout(HttpServletRequest request, @PathVariable UUID userId) {
-        try {
-//            checkVaildate(userId);
-            return userService.logout(request);
-        } catch (Exception ex){
-            return ResponseEntity.badRequest().build();
-        }
+//            checkValidate(userId);
+        return userService.logout(request);
     }
 
     @DeleteMapping("/{userId}")
     @Operation(summary = "회원 탈퇴", description = "유저가 탈퇴합니다. (안돼~~~~~~).")
     public ResponseEntity<String> deleteUser(HttpServletRequest request ,@PathVariable UUID userId) {
-        try {
-//            checkVaildate(userId);
+//            checkValidate(userId);
         return CompletableFuture.runAsync(() -> oauthService.unlink(userId))
                 .thenApply(v -> userService.deleteUser(request, userId))
                 .exceptionally(ex -> ResponseEntity.badRequest().body("Error: " + ex.getMessage()))
                 .join();
-        } catch (Exception ex){
-            return ResponseEntity.badRequest().build();
-        }
     }
 
-    private void checkVaildate(UUID userId){
+    private void checkValidate(UUID userId){
 //        SecurityUtil.validateUserAccess(userId);
     }
 }
