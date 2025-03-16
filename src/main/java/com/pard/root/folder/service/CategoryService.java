@@ -5,13 +5,15 @@ import com.pard.root.content.entity.Content;
 import com.pard.root.content.entity.ContentCategory;
 import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
+import com.pard.root.exception.content.NotFoundContentException;
+import com.pard.root.exception.folder.NotAccessedFolderException;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.repo.CategoryRepo;
 import com.pard.root.user.entity.User;
-import com.pard.root.user.repo.UserRepository;
+import com.pard.root.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,20 +30,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class CategoryService {
-
     private final CategoryRepo categoryRepo;
-    private final UserRepository userRepo;
     private final ContentRepository contentRepo;
+    private final UserService userService;
     private final ContentCategoryRepository contentCategoryRepo;
 
     public Long save(CategoryCreateDto categoryCreateDto) {
-        User user = userRepo.findById(categoryCreateDto.getUserId()).orElse(null);
+        User user = userService.findById(categoryCreateDto.getUserId());
 //        SecurityUtil.validateUserAccess(categoryCreateDto.getUserId());
         return categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0)).getId();
     }
 
     public Category findById(Long id) {
-        return categoryRepo.findById(id).orElse(null);
+        return categoryRepo.findById(id).orElseThrow(() -> new NotFoundContentException(id));
     }
 
     public List<CategoryReadDto> findAll(UUID userId) {
@@ -78,15 +79,12 @@ public class CategoryService {
         if(checkToUserId(userId, category.getUser().getId())) {
             category.updateTitle(dto);
         }
-        else {
-            throw new RuntimeException("You are not the owner of this category.");
-        }
     }
 
     @Transactional
     public void incrementContentCount(Long categoryId) {
         Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+                .orElseThrow(() -> new NotFoundContentException(categoryId));
 
         category.incrementCountContents();
         categoryRepo.save(category);
@@ -95,7 +93,7 @@ public class CategoryService {
     @Transactional
     public void decrementContentCount(Long categoryId) {
         Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+                .orElseThrow(() -> new NotFoundContentException(categoryId));
 
         category.decrementCountContents();
         categoryRepo.save(category);
@@ -114,10 +112,9 @@ public class CategoryService {
 
             categoryRepo.delete(category);
         } else {
-            throw new RuntimeException("You are not the owner of this category.");
+            throw new NotAccessedFolderException(categoryId);
         }
     }
-
 
     private boolean checkToUserId(UUID userId, UUID comparisonId) {
         return userId.equals(comparisonId);
