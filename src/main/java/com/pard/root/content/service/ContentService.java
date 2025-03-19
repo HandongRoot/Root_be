@@ -20,6 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,9 +72,10 @@ public class ContentService {
         else throw new AccessDeniedException("User does not have access to this category.");
     }
 
-    public List<ContentReadDto> findAll(UUID userId){
+    public List<ContentReadDto> findNextPageByUser(UUID userId, Long contentId){
         User user = userService.findById(userId);
-        List<Content> contents = contentRepository.findAllByUser(user);
+        Pageable pageable = PageRequest.of(0, 25, Sort.by(Sort.Direction.DESC, "id"));
+        List<Content> contents = contentRepository.findNextPageByUser(user, contentId, pageable);
         return contents.stream()
                 .map(ContentReadDto::new)
                 .toList();

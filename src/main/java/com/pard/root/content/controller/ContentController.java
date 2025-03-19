@@ -52,11 +52,11 @@ public class ContentController {
     }
 
     @GetMapping("/findAll/{userId}")
-    @Operation(summary = "전체 Contents 불러오기", description = "해당 유저의 모든 Contents 를 불러온다.")
-    public ResponseEntity<?> findAll(@PathVariable UUID userId) {
+    @Operation(summary = "Contents 일정 갯수 불러오기", description = "해당 유저의 모든 Contents 를 불러온다.")
+    public ResponseEntity<?> findNextPageByUser(@PathVariable UUID userId, @RequestParam(required = false) Long contentId) {
         try {
 //            checkVaildate(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(contentService.findAll(userId));
+            return ResponseEntity.status(HttpStatus.OK).body(contentService.findNextPageByUser(userId, contentId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }

@@ -19,8 +19,9 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     @Query("SELECT c " +
             "FROM Content c " +
             "WHERE c.user = :user " +
+            "AND (:lastId IS NULL OR c.id < :lastId) " +
             "ORDER BY c.id DESC")
-    List<Content> findAllByUser(@Param("user") User user);
+    List<Content> findNextPageByUser(@Param("user") User user, @Param("lastId") Long lastId, Pageable pageable);
 
     @Query("SELECT c " +
             "FROM Content c " +
