@@ -1,14 +1,13 @@
 package com.pard.root.auth.token.service;
 
 import com.pard.root.config.security.service.JwtProvider;
-import com.pard.root.exception.user.UserNotFoundException;
+import com.pard.root.exception.CustomException;
+import com.pard.root.exception.ExceptionCode;
 import com.pard.root.helper.constants.UserRole;
 import com.pard.root.auth.token.entity.RefreshToken;
 import com.pard.root.auth.token.repo.TokenRepository;
 import com.pard.root.user.entity.User;
-import com.pard.root.user.repo.UserRepository;
 import com.pard.root.user.service.UserService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,7 +44,7 @@ public class TokenService {
         String providerId = storedToken.getProviderId();
         String newRefreshToken = jwtProvider.generateRefreshToken(providerId);
         User user = userService.findByProviderId(providerId)
-                .orElseThrow(() -> new UserNotFoundException(providerId));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
         RefreshToken refreshTokenEntity = RefreshToken.builder()
                 .providerId(providerId)
                 .token(newRefreshToken)
