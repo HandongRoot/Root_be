@@ -8,8 +8,8 @@ import com.pard.root.content.entity.Content;
 import com.pard.root.content.entity.ContentCategory;
 import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
-import com.pard.root.exception.content.NotAccessedContentException;
-import com.pard.root.exception.content.NotFoundContentException;
+import com.pard.root.exception.content.ContentException;
+import com.pard.root.exception.content.ContentExceptionCode;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.service.CategoryService;
@@ -26,7 +26,6 @@ import org.springframework.data.domain.Sort;
 
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,7 +104,7 @@ public class ContentService {
 
         List<Content> contents = Arrays.stream(contentIds)
                 .map(id -> contentRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Content not found with id: " + id)))
+                        .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND)))
                 .toList();
 
         for (Content content : contents) {
@@ -120,7 +119,7 @@ public class ContentService {
                     contentCategoryRepository.save(contentCategory);
                     categoryService.incrementContentCount(categoryId);
                 } else {
-                    throw new AccessDeniedException("User does not have access to category ID " + categoryId);
+                    throw new ContentException(ContentExceptionCode.UNAUTHORIZED_ACCESS);
                 }
             }
         }
@@ -132,7 +131,7 @@ public class ContentService {
         Category beforeCategory = categoryService.findById(beforeCategoryId);
 
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new NotFoundContentException(contentId));
+                .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND));
 
         if (afterCategory == beforeCategory) {
             return false;
@@ -158,18 +157,18 @@ public class ContentService {
     @Transactional
     public void updateTitle(UUID userId, Long contentId, ContentUpdateDto dto) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new RuntimeException("Content not found with id: " + contentId));
+                .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND));
 
         if (checkToUserId(userId, content.getUser().getId())){
             content.updateTitle(dto);
             contentRepository.save(content);
-        }
+        } else throw new ContentException(ContentExceptionCode.UNAUTHORIZED_ACCESS);
     }
 
     @Transactional
     public void deleteContent(Long contentId, UUID userId) {
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new IllegalArgumentException("Content not found for id: " + contentId));
+                .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND));
 
         UUID userIdInContent = content.getUser().getId();
 
@@ -183,7 +182,7 @@ public class ContentService {
             contentCategoryRepository.deleteByContent(content);
             contentRepository.delete(content);
         } else {
-            throw new NotAccessedContentException(contentId);
+            throw new ContentException(ContentExceptionCode.UNAUTHORIZED_ACCESS);
         }
     }
 
