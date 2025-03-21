@@ -5,10 +5,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class ContentException extends RuntimeException {
-    private final HttpStatus status;
-
-    public ContentException(String message, HttpStatus status) {
-        super(message);
-        this.status = status;
+    private final ContentExceptionCode contentExceptionCode;
+    public ContentException(ContentExceptionCode contentExceptionCode) {
+        super(contentExceptionCode.getMessage());
+        this.contentExceptionCode = contentExceptionCode;
     }
 }
