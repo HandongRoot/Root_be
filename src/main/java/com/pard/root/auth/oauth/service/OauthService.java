@@ -2,13 +2,12 @@ package com.pard.root.auth.oauth.service;
 
 import com.pard.root.auth.oauth.converter.AppleLoginRequest;
 import com.pard.root.auth.oauth.service.social.AppleOauth;
-import com.pard.root.exception.user.UserNotFoundException;
+import com.pard.root.exception.CustomException;
+import com.pard.root.exception.ExceptionCode;
 import com.pard.root.helper.constants.SocialLoginType;
 import com.pard.root.auth.oauth.service.social.SocialOauth;
-import com.pard.root.config.security.service.JwtProvider;
 import com.pard.root.auth.token.service.TokenService;
 import com.pard.root.user.entity.User;
-import com.pard.root.helper.constants.UserRole;
 import com.pard.root.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class OauthService {
         try {
             response.sendRedirect(redirectURL);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CustomException(ExceptionCode.REDIRECT_FAILED);
         }
     }
 
@@ -64,7 +63,7 @@ public class OauthService {
             return tokenService.generateTokens(user, providerId);
         } else {
             User user = userService.findByProviderId(providerId)
-                    .orElseThrow(() -> new UserNotFoundException("User with providerId " + providerId + " not found"));
+                    .orElseThrow(() ->  new CustomException(ExceptionCode.USER_NOT_FOUNT));
             return tokenService.generateTokens(user, providerId);
         }
     }
@@ -74,7 +73,6 @@ public class OauthService {
      * 소셜 로그인 타입을 확인한 후 해당 OAuth 제공자의 언링크 기능을 호출한다.
      *
      * @param userId 언링크할 사용자의 고유 ID(UUID)
-     * @throws UserNotFoundException 주어진 userId에 해당하는 사용자가 존재하지 않을 경우 발생
      */
     public void unlink(UUID userId) {
         User user = userService.findById(userId);
@@ -94,7 +92,6 @@ public class OauthService {
      *
      * @param request Apple 로그인 요청 객체
      * @return        액세스 토큰과 관련 정보를 포함한 맵 객체
-     * @throws UserNotFoundException 제공자 ID를 가진 사용자가 존재하지 않을 경우 발생
      */
     public Map<String, Object> requestAppleAccessToken(AppleLoginRequest request) {
         String providerId = request.getUserIdentifier();
@@ -106,7 +103,7 @@ public class OauthService {
             userService.saveUser(userInfo);
         } else {
             user = userService.findByProviderId(providerId)
-                    .orElseThrow(() -> new UserNotFoundException("User with providerId " + providerId + " not found"));
+                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
         }
 
         return tokenService.generateTokens(user, providerId);
@@ -121,13 +118,13 @@ public class OauthService {
         return socialOauthList.stream()
                 .filter(x -> x.type() == socialLoginType)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("알 수 없는 SocialLoginType 입니다."));
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_MATCHING_SOCIAL_TYPE));
     }
 
-    /**
-     * 주어진 사용자 정보를 기반으로 액세스 토큰과 리프레시 토큰을 생성한다.
-     * 사용자 상태를 활성(active)으로 업데이트한 후, JWT를 발급하고 저장한다.
-     * @param user       토큰을 생성할 사용자 객체
+    /*
+      주어진 사용자 정보를 기반으로 액세스 토큰과 리프레시 토큰을 생성한다.
+      사용자 상태를 활성(active)으로 업데이트한 후, JWT를 발급하고 저장한다.
+      @param user       토큰을 생성할 사용자 객체
      * @param providerId 사용자의 소셜 로그인 제공자 ID
      * @return           생성된 액세스 토큰과 리프레시 토큰을 포함하는 맵 객체
      */

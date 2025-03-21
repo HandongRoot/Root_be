@@ -10,8 +10,14 @@ public enum ExceptionCode implements BaseException {
     // Common
     UNAUTHORIZED_ACCESS(HttpStatus.FORBIDDEN, "접근할 권한이 없습니다."),
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
+    USER_NOT_FOUNT(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),
     UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다."),
+
+    // Social Type
+    INVALID_REDIRECT_URL(HttpStatus.BAD_REQUEST, "잘못된 리디렉션 URL입니다."),
+    REDIRECT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "리디렉션 중 오류가 발생했습니다."),
+    NOT_MATCHING_SOCIAL_TYPE(HttpStatus.NOT_ACCEPTABLE, "해당 소셜 타입이 없습니다"),
 
     // Contents
     CONTENT_NOT_FOUND(HttpStatus.NOT_FOUND, "콘텐츠를 찾을 수 없습니다."),
