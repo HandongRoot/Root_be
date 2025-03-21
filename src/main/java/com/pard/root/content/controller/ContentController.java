@@ -1,8 +1,12 @@
 package com.pard.root.content.controller;
 
+import com.pard.root.config.security.util.SecurityUtil;
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
+import com.pard.root.exception.BaseException;
+import com.pard.root.exception.CustomException;
+import com.pard.root.exception.ExceptionCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -121,6 +125,11 @@ public class ContentController {
     }
 
     private void checkVaildate(UUID userId){
-//        SecurityUtil.validateUserAccess(userId);
+        try{
+            SecurityUtil.validateUserAccess(userId);
+        } catch (Exception e){
+            throw new CustomException(ExceptionCode.AUTHENTICATION_REQUIRED);
+        }
+
     }
 }

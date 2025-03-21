@@ -8,8 +8,8 @@ import com.pard.root.content.entity.Content;
 import com.pard.root.content.entity.ContentCategory;
 import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
-import com.pard.root.exception.content.ContentException;
-import com.pard.root.exception.content.ContentExceptionCode;
+import com.pard.root.exception.CustomException;
+import com.pard.root.exception.ExceptionCode;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.service.CategoryService;
@@ -52,7 +52,7 @@ public class ContentService {
                 contentCategoryRepository.save(contentCategory);
                 categoryService.incrementContentCount(categoryId);
             } else {
-                throw new AccessDeniedException("User does not have access to category ID " + categoryId);
+                throw new CustomException(ExceptionCode.AUTHENTICATION_REQUIRED);
             }
         }
     }
@@ -68,7 +68,7 @@ public class ContentService {
                     .map(content -> new ContentReadDto(content, categoryReadDto))
                     .toList();
         }
-        else throw new AccessDeniedException("User does not have access to this category.");
+        else throw new CustomException(ExceptionCode.AUTHENTICATION_REQUIRED);
     }
 
     public List<ContentReadDto> findNextPageByUser(UUID userId, Long contentId){
@@ -104,7 +104,7 @@ public class ContentService {
 
         List<Content> contents = Arrays.stream(contentIds)
                 .map(id -> contentRepository.findById(id)
-                        .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND)))
+                        .orElseThrow(() -> new CustomException(ExceptionCode.CONTENT_NOT_FOUND)))
                 .toList();
 
         for (Content content : contents) {
@@ -119,7 +119,7 @@ public class ContentService {
                     contentCategoryRepository.save(contentCategory);
                     categoryService.incrementContentCount(categoryId);
                 } else {
-                    throw new ContentException(ContentExceptionCode.UNAUTHORIZED_ACCESS);
+                    throw new CustomException(ExceptionCode.UNAUTHORIZED_ACCESS);
                 }
             }
         }
@@ -131,7 +131,7 @@ public class ContentService {
         Category beforeCategory = categoryService.findById(beforeCategoryId);
 
         Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND));
+                .orElseThrow(() ->new CustomException(ExceptionCode.CONTENT_NOT_FOUND));
 
         if (afterCategory == beforeCategory) {
             return false;
@@ -143,8 +143,7 @@ public class ContentService {
             if (afterCategory != null) {
                 boolean exists = contentCategoryRepository.existsByContentAndCategory(content, afterCategory);
                 if (!exists) {
-                    ContentCategory newContentCategory = new ContentCategory(content, afterCategory);
-                    contentCategoryRepository.save(newContentCategory);
+                    contentCategoryRepository.save(new ContentCategory(content, afterCategory));
                     categoryService.incrementContentCount(afterCategoryId);
                 }
             }
@@ -156,33 +155,41 @@ public class ContentService {
 
     @Transactional
     public void updateTitle(UUID userId, Long contentId, ContentUpdateDto dto) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND));
+        try{
+            Content content = contentRepository.findById(contentId)
+                    .orElseThrow(() -> new CustomException(ExceptionCode.CONTENT_NOT_FOUND));
 
-        if (checkToUserId(userId, content.getUser().getId())){
-            content.updateTitle(dto);
-            contentRepository.save(content);
-        } else throw new ContentException(ContentExceptionCode.UNAUTHORIZED_ACCESS);
+            if (checkToUserId(userId, content.getUser().getId())){
+                content.updateTitle(dto);
+                contentRepository.save(content);
+            } else throw new CustomException(ExceptionCode.UNAUTHORIZED_ACCESS);
+        } catch (Exception e){
+            throw new CustomException(ExceptionCode.CONTENT_UPDATE_FAILED);
+        }
     }
 
     @Transactional
     public void deleteContent(Long contentId, UUID userId) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(() -> new ContentException(ContentExceptionCode.CONTENT_NOT_FOUND));
+        try{
+            Content content = contentRepository.findById(contentId)
+                    .orElseThrow(() -> new CustomException(ExceptionCode.CONTENT_NOT_FOUND));
 
-        UUID userIdInContent = content.getUser().getId();
+            UUID userIdInContent = content.getUser().getId();
 
-        if (checkToUserId(userId, userIdInContent)) {
-            List<ContentCategory> contentCategories = contentCategoryRepository.findByContent(content);
+            if (checkToUserId(userId, userIdInContent)) {
+                List<ContentCategory> contentCategories = contentCategoryRepository.findByContent(content);
 
-            for (ContentCategory contentCategory : contentCategories) {
-                categoryService.decrementContentCount(contentCategory.getCategory().getId());
+                for (ContentCategory contentCategory : contentCategories) {
+                    categoryService.decrementContentCount(contentCategory.getCategory().getId());
+                }
+
+                contentCategoryRepository.deleteByContent(content);
+                contentRepository.delete(content);
+            } else {
+                throw new CustomException(ExceptionCode.UNAUTHORIZED_ACCESS);
             }
-
-            contentCategoryRepository.deleteByContent(content);
-            contentRepository.delete(content);
-        } else {
-            throw new ContentException(ContentExceptionCode.UNAUTHORIZED_ACCESS);
+        } catch (Exception e){
+            throw new CustomException(ExceptionCode.CONTENT_DELETE_FAILED);
         }
     }
 
