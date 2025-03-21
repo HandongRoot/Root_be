@@ -5,8 +5,8 @@ import com.pard.root.content.entity.Content;
 import com.pard.root.content.entity.ContentCategory;
 import com.pard.root.content.repo.ContentCategoryRepository;
 import com.pard.root.content.repo.ContentRepository;
-import com.pard.root.exception.content.NotFoundContentException;
-import com.pard.root.exception.folder.NotAccessedFolderException;
+import com.pard.root.exception.CustomException;
+import com.pard.root.exception.ExceptionCode;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
@@ -42,12 +42,10 @@ public class CategoryService {
     }
 
     public Category findById(Long id) {
-        return categoryRepo.findById(id).orElseThrow(() -> new NotFoundContentException(id));
+        return categoryRepo.findById(id).orElseThrow(() -> new CustomException(ExceptionCode.CATEGORY_NOT_FOUND));
     }
 
     public List<CategoryReadDto> findAll(UUID userId) {
-        log.info("\uD83D\uDCCD Find All Category");
-
         List<Category> categories = categoryRepo.findByUserId(userId);
 
         return categories.stream()
@@ -65,8 +63,6 @@ public class CategoryService {
     }
 
     public List<CategoryReadDto> searchCategoryList(UUID userId, String titlePart) {
-        log.info("\uD83D\uDCCD Search Category");
-
         List<Category> categories = categoryRepo.findByUserIdAndNameContaining(userId, titlePart);
         return categories.stream()
                 .map(CategoryReadDto::new)
@@ -78,13 +74,13 @@ public class CategoryService {
         Category category = categoryRepo.findById(categoryId).orElseThrow();
         if(checkToUserId(userId, category.getUser().getId())) {
             category.updateTitle(dto);
-        }
+        } else throw new CustomException(ExceptionCode.UNAUTHORIZED_ACCESS);
     }
 
     @Transactional
     public void incrementContentCount(Long categoryId) {
         Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new NotFoundContentException(categoryId));
+                .orElseThrow(() -> new CustomException(ExceptionCode.CATEGORY_NOT_FOUND));
 
         category.incrementCountContents();
         categoryRepo.save(category);
@@ -93,7 +89,7 @@ public class CategoryService {
     @Transactional
     public void decrementContentCount(Long categoryId) {
         Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new NotFoundContentException(categoryId));
+                .orElseThrow(() -> new CustomException(ExceptionCode.CATEGORY_NOT_FOUND));
 
         category.decrementCountContents();
         categoryRepo.save(category);
@@ -112,7 +108,7 @@ public class CategoryService {
 
             categoryRepo.delete(category);
         } else {
-            throw new NotAccessedFolderException(categoryId);
+            throw new CustomException(ExceptionCode.CATEGORY_DELETE_FAILED);
         }
     }
 
