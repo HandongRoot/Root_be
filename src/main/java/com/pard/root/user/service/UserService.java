@@ -3,7 +3,8 @@ package com.pard.root.user.service;
 import com.pard.root.auth.blacklist.service.BlacklistedTokenService;
 import com.pard.root.auth.token.repo.TokenRepository;
 import com.pard.root.config.security.service.JwtProvider;
-import com.pard.root.exception.user.UserNotFoundException;
+import com.pard.root.exception.CustomException;
+import com.pard.root.exception.ExceptionCode;
 import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
@@ -49,7 +50,7 @@ public class UserService {
     public UserReadDto findByUserId(UUID id) {
         return userRepository.findById(id)
                 .map(UserReadDto::new)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
     }
 
     public Optional<User> findByProviderId(String providerId) { return userRepository.findByProviderId(providerId); }
@@ -61,7 +62,7 @@ public class UserService {
     @Transactional
     public void updateUserStateToActive(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() ->  new UserNotFoundException(providerId));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
         user.activate();
     }
 
@@ -82,7 +83,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> deleteUser(HttpServletRequest request, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
 
         String accessToken = jwtProvider.resolveToken(request);
         if (accessToken == null) {
