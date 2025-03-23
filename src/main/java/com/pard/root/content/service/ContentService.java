@@ -57,12 +57,13 @@ public class ContentService {
         }
     }
 
-    public List<ContentReadDto> findByCategoryId(Long categoryId, UUID userId ){
+    public List<ContentReadDto> findByCategoryId(Long categoryId, UUID userId, Long contentId) {
         Category category = categoryService.findById(categoryId);
         UUID userIdInCategory = category.getUser().getId();
         if(checkToUserId(userId, userIdInCategory)){
             User user = userService.findById(userId);
-            List<Content> contents = contentRepository.findContentsByUserAndCategory(user, category);
+            Pageable pageable = PageRequest.of(0, 16, Sort.by(Sort.Direction.DESC, "id"));
+            List<Content> contents = contentRepository.findContentsByUserAndCategory(user, category, contentId ,pageable);
             CategoryReadDto categoryReadDto = new CategoryReadDto(category);
             return contents.stream()
                     .map(content -> new ContentReadDto(content, categoryReadDto))

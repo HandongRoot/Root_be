@@ -32,8 +32,9 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     @Query("SELECT c FROM Content c " +
             "JOIN ContentCategory cc ON c = cc.content " +
             "WHERE c.user = :user AND cc.category = :category " +
+            "AND (:lastId IS NULL OR c.id < :lastId) "  +
             "ORDER BY c.id DESC")
-    List<Content> findContentsByUserAndCategory(@Param("user") User user, @Param("category") Category category);
+    List<Content> findContentsByUserAndCategory(@Param("user") User user, @Param("category") Category category, @Param("lastId") Long lastId, Pageable pageable);
 
     @Query("SELECT c FROM Content c " +
             "JOIN ContentCategory cc ON c = cc.content " +

@@ -46,10 +46,10 @@ public class ContentController {
 
     @GetMapping("/find/{userId}/{categoryId}")
     @Operation(summary = "Category 내에서 Contents 불러오기 기능", description = "해당 유저의 Category 속에 담겨있는 Content를 불러오기")
-    public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @PathVariable UUID userId) {
+    public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @PathVariable UUID userId, @RequestParam(required = false) Long contentId) {
         try {
 //            checkVaildate(userId);
-            return ResponseEntity.status(HttpStatus.OK).body(contentService.findByCategoryId(categoryId, userId));
+            return ResponseEntity.status(HttpStatus.OK).body(contentService.findByCategoryId(categoryId, userId, contentId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
