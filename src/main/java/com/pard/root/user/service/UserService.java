@@ -43,8 +43,8 @@ public class UserService {
         return existingUser.orElseGet(() -> userRepository.save(User.toEntity(userCreateDto)));
     }
 
-    public User findById(UUID id) {
-        return userRepository.findById(id).orElse(null);
+    public User findById(UUID userId) {
+        return userRepository.findById(userId).orElse(null);
     }
 
     public UserReadDto findByUserId(UUID id) {
@@ -89,14 +89,13 @@ public class UserService {
         if (accessToken == null) {
             return ResponseEntity.badRequest().body("Access Token is missing");
         }
+        String providerId = jwtProvider.parseToken(accessToken).getSubject();
         blacklistedTokenService.addToBlacklist(accessToken);
 
-        userRepository.updateUserState(user.getId(), UserState.DEACTIVATED);
-
-        String providerId = jwtProvider.parseToken(accessToken).getSubject();
+        user.deactivate();
         tokenRepository.deleteByProviderId(providerId);
 
-
+        userRepository.save(user);
         return ResponseEntity.ok("User has been successfully deleted and logged out.");
     }
 }
