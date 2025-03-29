@@ -2,6 +2,8 @@ package com.pard.root.auth.oauth.service;
 
 import com.pard.root.auth.oauth.converter.AppleLoginRequest;
 import com.pard.root.auth.oauth.service.social.AppleOauth;
+import com.pard.root.content.dto.ContentCreateDto;
+import com.pard.root.content.service.ContentService;
 import com.pard.root.exception.CustomException;
 import com.pard.root.exception.ExceptionCode;
 import com.pard.root.helper.constants.SocialLoginType;
@@ -12,6 +14,7 @@ import com.pard.root.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -29,6 +32,16 @@ public class OauthService {
     private final HttpServletResponse response;
     private final UserService userService;
     private final TokenService tokenService;
+    private final ContentService contentService;
+
+    @Value("${root.start.image}")
+    private String startImage;
+
+    @Value("${root.start.title}")
+    private String startTitle;
+
+    @Value("${root.start.url}")
+    private String startUrl;
 
     /**
      * 소셜로그인의 타일을 알아보는 method
@@ -60,6 +73,13 @@ public class OauthService {
 
         if (!userService.existsByProviderId(providerId)) {
             User user = userService.saveUser(userInfo);
+
+            contentService.saveContent(user.getId(), ContentCreateDto.builder()
+                            .title(startTitle)
+                            .linkedUrl(startUrl)
+                            .thumbnail(startImage)
+                            .build(), null);
+
             return tokenService.generateTokens(user, providerId);
         } else {
             User user = userService.findByProviderId(providerId)
@@ -95,18 +115,24 @@ public class OauthService {
      */
     public Map<String, Object> requestAppleAccessToken(AppleLoginRequest request) {
         String providerId = request.getUserIdentifier();
-
         log.info(providerId);
-        User user = new User();
+
         if (!userService.existsByProviderId(providerId)) {
             Map<String, Object> userInfo = appleOauth.authenticateWithApple(request);
-            userService.saveUser(userInfo);
-        } else {
-            user = userService.findByProviderId(providerId)
-                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
-        }
+            User newUser = userService.saveUser(userInfo);
 
-        return tokenService.generateTokens(user, providerId);
+            contentService.saveContent(newUser.getId(), ContentCreateDto.builder()
+                    .title(startTitle)
+                    .linkedUrl(startUrl)
+                    .thumbnail(startImage)
+                    .build(), null);
+
+            return tokenService.generateTokens(newUser, providerId);
+        } else {
+            User user = userService.findByProviderId(providerId)
+                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+            return tokenService.generateTokens(user, providerId);
+        }
     }
 
     /**
