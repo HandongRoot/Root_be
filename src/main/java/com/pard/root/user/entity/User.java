@@ -74,9 +74,10 @@ public class User extends BaseTimeEntity {
     }
 
     public void activate() {
-        if (this.userState == UserState.ACTIVE) {
-            throw new IllegalStateException("User is already active.");
-        }
         this.userState = UserState.ACTIVE;
+    }
+
+    public void deactivate() {
+        this.userState = UserState.DEACTIVATED;
     }
 }
