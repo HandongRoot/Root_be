@@ -19,11 +19,11 @@ import java.util.Map;
 @Slf4j
 public class KakaoOauth implements SocialOauth {
 
-    @Value("${oauth.kakao.client-id}")
+    @Value("${sns.kakao.client-id}")
     private String clientId;
-    @Value("${oauth.kakao.client-secret}")
+    @Value("${sns.kakao.client-secret}")
     private String clientSecret;
-    @Value("${oauth.kakao.redirect-uri}")
+    @Value("${sns.kakao.redirect-uri}")
     private String redirectUri;
     @Value("${sns.kakao.token-uri}")
     private String tokenUri;
@@ -136,8 +136,8 @@ public class KakaoOauth implements SocialOauth {
         String socialRefreshToken = socialRefreshTokenService.getRefreshToken(providerId);
 
         if(socialRefreshToken != null){
-            socialRefreshTokenService.deleteSocialRefreshToken(providerId);
             String accessToken = refreshAccessTokenForRefreshToken(socialRefreshToken);
+            socialRefreshTokenService.deleteSocialRefreshToken(providerId);
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(accessToken);
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
