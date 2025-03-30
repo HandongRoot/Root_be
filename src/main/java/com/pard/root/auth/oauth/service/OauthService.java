@@ -121,7 +121,7 @@ public class OauthService {
             return tokenService.generateTokens(newUser, providerId);
         } else {
             User user = userService.findByProviderId(providerId)
-                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
             return tokenService.generateTokens(user, providerId);
         }
     }
@@ -166,7 +166,7 @@ public class OauthService {
             return tokenService.generateTokens(user, providerId);
         } else {
             User user = userService.findByProviderId(providerId)
-                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
 
             return tokenService.generateTokens(user, providerId);
         }

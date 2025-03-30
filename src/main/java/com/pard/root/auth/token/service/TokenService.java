@@ -44,7 +44,7 @@ public class TokenService {
         String providerId = storedToken.getProviderId();
         String newRefreshToken = jwtProvider.generateRefreshToken(providerId);
         User user = userService.findByProviderId(providerId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
         RefreshToken refreshTokenEntity = RefreshToken.builder()
                 .providerId(providerId)
                 .token(newRefreshToken)

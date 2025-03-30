@@ -50,7 +50,7 @@ public class UserService {
     public UserReadDto findByUserId(UUID id) {
         return userRepository.findById(id)
                 .map(UserReadDto::new)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
     }
 
     public Optional<User> findByProviderId(String providerId) { return userRepository.findByProviderId(providerId); }
@@ -62,7 +62,7 @@ public class UserService {
     @Transactional
     public void updateUserStateToActive(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
         user.activate();
     }
 
@@ -83,7 +83,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> deleteUser(HttpServletRequest request, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
 
         String accessToken = jwtProvider.resolveToken(request);
         if (accessToken == null) {
