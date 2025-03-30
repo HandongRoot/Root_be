@@ -1,6 +1,7 @@
 package com.pard.root.auth.oauth.service;
 
-import com.pard.root.auth.oauth.converter.AppleLoginRequest;
+import com.pard.root.auth.oauth.dto.AppleLoginRequest;
+import com.pard.root.auth.oauth.dto.SocialTokenRequest;
 import com.pard.root.auth.oauth.service.social.AppleOauth;
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.service.ContentService;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -67,25 +67,16 @@ public class OauthService {
      */
     public Map<String, Object> requestAccessToken(SocialLoginType socialLoginType, String code) {
         SocialOauth socialOauth = this.findSocialOauthByType(socialLoginType);
-        Map<String, Object> token = socialOauth.requestAccessToken(code);
-        Map<String, Object> userInfo = socialOauth.getUserInfo(token);
-        String providerId = (String) userInfo.get("sub");
+        Map<String, Object> tokenMap = socialOauth.requestAccessToken(code);
 
-        if (!userService.existsByProviderId(providerId)) {
-            User user = userService.saveUser(userInfo);
+        return getOrCreateUserAndGenerateTokens(socialLoginType, tokenMap);
+    }
 
-            contentService.saveContent(user.getId(), ContentCreateDto.builder()
-                            .title(startTitle)
-                            .linkedUrl(startUrl)
-                            .thumbnail(startImage)
-                            .build(), null);
-
-            return tokenService.generateTokens(user, providerId);
-        } else {
-            User user = userService.findByProviderId(providerId)
-                    .orElseThrow(() ->  new CustomException(ExceptionCode.USER_NOT_FOUNT));
-            return tokenService.generateTokens(user, providerId);
-        }
+    public Map<String, Object> requestAppSocialLogin(SocialLoginType socialLoginType, SocialTokenRequest dto) {
+        Map<String, Object> tokenMap = Map.of(
+                "access_token", dto.getAccessToken()
+        );
+        return getOrCreateUserAndGenerateTokens(socialLoginType, tokenMap);
     }
 
     /**
@@ -154,4 +145,30 @@ public class OauthService {
      * @param providerId 사용자의 소셜 로그인 제공자 ID
      * @return           생성된 액세스 토큰과 리프레시 토큰을 포함하는 맵 객체
      */
+    private Map<String, Object> getOrCreateUserAndGenerateTokens(SocialLoginType socialLoginType, Map<String, Object> tokenMap) {
+        SocialOauth socialOauth = this.findSocialOauthByType(socialLoginType);
+        Map<String, Object> userInfo = socialOauth.getUserInfo(tokenMap);
+        String providerId = (String) userInfo.get("sub");
+
+        if (!userService.existsByProviderId(providerId)) {
+            User user = userService.saveUser(userInfo);
+
+            contentService.saveContent(
+                    user.getId(),
+                    ContentCreateDto.builder()
+                            .title(startTitle)
+                            .linkedUrl(startUrl)
+                            .thumbnail(startImage)
+                            .build(),
+                    null
+            );
+
+            return tokenService.generateTokens(user, providerId);
+        } else {
+            User user = userService.findByProviderId(providerId)
+                    .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+
+            return tokenService.generateTokens(user, providerId);
+        }
+    }
 }
