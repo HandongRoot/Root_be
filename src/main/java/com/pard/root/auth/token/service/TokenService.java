@@ -48,8 +48,6 @@ public class TokenService {
         RefreshToken refreshTokenEntity = RefreshToken.builder()
                 .providerId(providerId)
                 .token(newRefreshToken)
-                .email(user.getEmail())
-                .name(user.getName())
                 .build();
         tokenRepository.save(refreshTokenEntity);
 

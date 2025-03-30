@@ -23,6 +23,6 @@ public class SocialRefreshToken {
     @Column(nullable = false)
     private String providerId;
 
-    @Column(nullable = false, name = "social_refresh_token")
+    @Column(name = "social_refresh_token")
     private String token;
 }
