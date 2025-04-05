@@ -10,12 +10,18 @@ import org.springframework.http.HttpStatus;
 public enum ExceptionCode implements BaseException {
 
     // 400 BAD_REQUEST
+    INVALID_JWT_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 JWT 형식입니다."),
+    MISSING_AUTHORIZATION_HEADER(HttpStatus.BAD_REQUEST, "Authorization 헤더가 존재하지 않습니다."),
     INVALID_REDIRECT_URL(HttpStatus.BAD_REQUEST, "잘못된 리디렉션 URL입니다."),
     INVALID_CONTENT_ID(HttpStatus.BAD_REQUEST, "유효하지 않은 콘텐츠 ID입니다."),
     INVALID_CONTENT_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 콘텐츠 형식입니다."),
     INVALID_CATEGORY_ID(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 ID입니다."),
 
     // 401 UNAUTHORIZED
+    JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT 토큰이 만료되었습니다."),
+    INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "JWT 서명이 올바르지 않습니다."),
+    UNSUPPORTED_JWT(HttpStatus.UNAUTHORIZED, "지원하지 않는 JWT 형식입니다."),
+    EMPTY_JWT(HttpStatus.UNAUTHORIZED, "JWT 토큰이 비어있거나 누락되었습니다."),
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
 
     // 403 FORBIDDEN
@@ -34,6 +40,7 @@ public enum ExceptionCode implements BaseException {
     DUPLICATE_CATEGORY_NAME(HttpStatus.CONFLICT, "이미 존재하는 카테고리 이름입니다."),
 
     // 500 INTERNAL_SERVER_ERROR
+    JWT_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "JWT 처리 중 서버 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),
     UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다."),
     REDIRECT_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "리디렉션 중 오류가 발생했습니다."),
