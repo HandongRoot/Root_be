@@ -41,6 +41,14 @@ public class User extends BaseTimeEntity {
     @Email(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "이메일 형식이 잘못되었습니다.")
     private String email;
 
+    @Setter
+    @Column(name = "terms_of_service_agrmnt")
+    private Boolean termsOfServiceAgrmnt;
+
+    @Setter
+    @Column(name = "privacy_policy_agrmnt")
+    private Boolean privacyPolicyAgrmnt;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
@@ -69,6 +77,8 @@ public class User extends BaseTimeEntity {
                 .provider(userCreateDto.getProvider())
                 .providerId(userCreateDto.getProviderId())
                 .roles(Set.of(UserRole.USER))
+                .termsOfServiceAgrmnt(false)
+                .privacyPolicyAgrmnt(false)
                 .userState(UserState.ACTIVE)
                 .build();
     }
