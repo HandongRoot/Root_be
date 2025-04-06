@@ -2,7 +2,7 @@ package com.pard.root.auth.oauth.service.social;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pard.root.auth.oauth.converter.AppleLoginRequest;
+import com.pard.root.auth.oauth.dto.AppleLoginRequest;
 import com.pard.root.auth.token.service.SocialRefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -12,10 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -80,7 +77,7 @@ public class AppleOauth {
             String email = isPrivateEmail ? request.getUserIdentifier() + "@apple.com" : claims.get("email", String.class);
 
             Map<String, String> appleTokens = requestAppleTokens(request.getAuthorizationCode());
-
+            log.info("apple tokens: {}", appleTokens);
             socialRefreshTokenService.createSocialRefreshToken(request.getIdentityToken(), appleTokens.get("refresh_token"));
 
 
@@ -195,7 +192,7 @@ public class AppleOauth {
     public String generateClientSecret() {
         try {
             long now = System.currentTimeMillis();
-            long expiresAt = now + refreshExpiration; // 최대 180일
+            long expiresAt = now + refreshExpiration;
 
             return Jwts.builder()
                     .setHeaderParam("kid", APPLE_KEY_ID)
@@ -217,15 +214,20 @@ public class AppleOauth {
      * @return PrivateKey 객체
      */
     private PrivateKey loadPrivateKeyFromFile() throws Exception {
-        ClassPathResource resource = new ClassPathResource(APPLE_PRIVATE_KEY_PATH);
+        File resource = new File(APPLE_PRIVATE_KEY_PATH);
 
-        try (Reader pemReader = new FileReader(resource.getFile());
-             PEMParser pemParser = new PEMParser(pemReader)) {
+        try (InputStream is = new FileInputStream(resource);
+             Reader reader = new InputStreamReader(is);
+             PEMParser pemParser = new PEMParser(reader)) {
+
+            Object obj = pemParser.readObject();
+            if (!(obj instanceof PrivateKeyInfo)) {
+                throw new IllegalArgumentException("❌ Provided .p8 file is not a valid PrivateKeyInfo object");
+            }
 
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-            PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
 
-            return converter.getPrivateKey(privateKeyInfo);
+            return converter.getPrivateKey((PrivateKeyInfo) obj);
         }
     }
 

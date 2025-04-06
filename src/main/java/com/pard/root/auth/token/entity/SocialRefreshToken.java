@@ -20,9 +20,9 @@ public class SocialRefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String providerId;
 
-    @Column(nullable = false, name = "social_refresh_token")
+    @Column(name = "social_refresh_token", columnDefinition = "TEXT")
     private String token;
 }

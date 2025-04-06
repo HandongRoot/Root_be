@@ -13,6 +13,7 @@ import org.springframework.http.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -135,7 +136,7 @@ public class KakaoOauth implements SocialOauth {
     public void unlink(String providerId) {
         String socialRefreshToken = socialRefreshTokenService.getRefreshToken(providerId);
 
-        if(socialRefreshToken != null){
+        if(!Objects.equals(socialRefreshToken, "")){
             String accessToken = refreshAccessTokenForRefreshToken(socialRefreshToken);
             socialRefreshTokenService.deleteSocialRefreshToken(providerId);
             HttpHeaders headers = new HttpHeaders();

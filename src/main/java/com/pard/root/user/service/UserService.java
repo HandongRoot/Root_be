@@ -6,6 +6,7 @@ import com.pard.root.config.security.service.JwtProvider;
 import com.pard.root.exception.CustomException;
 import com.pard.root.exception.ExceptionCode;
 import com.pard.root.helper.constants.UserState;
+import com.pard.root.user.dto.UserAccessDto;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
@@ -43,14 +44,24 @@ public class UserService {
         return existingUser.orElseGet(() -> userRepository.save(User.toEntity(userCreateDto)));
     }
 
+    @Transactional
+    public void saveAgrnmt(UUID userId, UserAccessDto userAccessDto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
+
+        user.setTermsOfServiceAgrmnt(userAccessDto.getTermsOfServiceAgrmnt());
+        user.setPrivacyPolicyAgrmnt(userAccessDto.getPrivacyPolicyAgrmnt());
+        userRepository.save(user);
+    }
+
     public User findById(UUID userId) {
         return userRepository.findById(userId).orElse(null);
     }
 
     public UserReadDto findByUserId(UUID id) {
+        log.info("Find user by id: {}", id);
         return userRepository.findById(id)
                 .map(UserReadDto::new)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
     }
 
     public Optional<User> findByProviderId(String providerId) { return userRepository.findByProviderId(providerId); }
@@ -62,28 +73,24 @@ public class UserService {
     @Transactional
     public void updateUserStateToActive(String providerId) {
         User user = userRepository.findByProviderId(providerId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
         user.activate();
     }
 
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public void logout(HttpServletRequest request) {
         String accessToken = jwtProvider.resolveToken(request);
-        if (accessToken == null) {
-            return ResponseEntity.badRequest().body("Access Token is missing");
-        }
+
         blacklistedTokenService.addToBlacklist(accessToken);
 
         String providerId = jwtProvider.parseToken(accessToken).getSubject();
         userRepository.updateUserState(findByProviderId(providerId).orElseThrow().getId(), UserState.DEACTIVATED);
         tokenRepository.deleteByProviderId(providerId);
-
-        return ResponseEntity.ok("Logout successful");
     }
 
     @Transactional
     public ResponseEntity<String> deleteUser(HttpServletRequest request, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUNT));
+                .orElseThrow(() -> new CustomException(ExceptionCode.USER_NOT_FOUND));
 
         String accessToken = jwtProvider.resolveToken(request);
         if (accessToken == null) {

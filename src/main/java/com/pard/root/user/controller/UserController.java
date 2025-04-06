@@ -1,10 +1,12 @@
 package com.pard.root.user.controller;
 
 import com.pard.root.auth.oauth.service.OauthService;
+import com.pard.root.user.dto.UserAccessDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +19,12 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 @Tag(name = "User API", description = "유저 관련 API")
 public class UserController {
     private final UserService userService;
     private final OauthService oauthService;
-
-    public UserController(UserService userService, OauthService oauthService) {
-        this.userService = userService;
-        this.oauthService = oauthService;
-    }
 
     @GetMapping("/{userId}")
     @Operation(summary = "User 정보보기", description = "해당 유저의 정보를 보는 방법")
@@ -36,11 +34,18 @@ public class UserController {
         return ResponseEntity.ok(userReadDto);
     }
 
+    @PostMapping("/argmnt/{userId}")
+    @Operation(summary = "User argument 저장", description = "개인 정보 처리 동의, 이용약관 동의 받아야해")
+    public ResponseEntity<?> saveArgmnts(@PathVariable UUID userId, @RequestBody UserAccessDto userAccessDto) {
+        userService.saveAgrnmt(userId, userAccessDto);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/logout/{userId}")
     @Operation(summary = "로그 아웃", description = "현재 인증된 사용자를 로그아웃합니다.")
-    public ResponseEntity<String> logout(HttpServletRequest request, @PathVariable UUID userId) {
-//            checkValidate(userId);
-        return userService.logout(request);
+    public ResponseEntity<?> logout(HttpServletRequest request, @PathVariable UUID userId) {
+        userService.logout(request);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{userId}")

@@ -1,13 +1,15 @@
 package com.pard.root.exception;
 
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@Builder
 public class CustomException extends RuntimeException {
-    private final BaseException baseException;
-
-    public CustomException(BaseException baseException1) {
-        this.baseException = baseException1;
+    private final ExceptionCode exceptionCode;
+    public CustomException(ExceptionCode exceptionCode) {
+        super(exceptionCode.getMessage());
+        this.exceptionCode = exceptionCode;
     }
 }

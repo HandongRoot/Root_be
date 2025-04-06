@@ -15,6 +15,8 @@ public class UserReadDto {
     private UUID id;
     private String name;
     private String email;
+    private Boolean termsOfServiceAgrmnt;
+    private Boolean privacyPolicyAgrmnt;
     private String pictureUrl;
     private String provider;
 
@@ -24,6 +26,8 @@ public class UserReadDto {
         this.email = user.getEmail();
         this.pictureUrl = user.getPictureUrl();
         this.provider = user.getProvider();
+        this.termsOfServiceAgrmnt = user.getTermsOfServiceAgrmnt();
+        this.privacyPolicyAgrmnt = user.getPrivacyPolicyAgrmnt();
     }
 
 }
