@@ -60,6 +60,8 @@ public class User extends BaseTimeEntity {
     private UserState userState = UserState.ACTIVE;
 
     private String provider;
+
+    @Column(columnDefinition = "TEXT")
     private String providerId;
 
     @Builder
