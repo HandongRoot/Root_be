@@ -74,7 +74,8 @@ public class OauthService {
 
     public Map<String, Object> requestAppSocialLogin(SocialLoginType socialLoginType, SocialTokenRequest dto) {
         Map<String, Object> tokenMap = Map.of(
-                "access_token", dto.getAccessToken()
+                "access_token", dto.getAccess_token(),
+                "refresh_token", dto.getRefresh_token()
         );
         return getOrCreateUserAndGenerateTokens(socialLoginType, tokenMap);
     }

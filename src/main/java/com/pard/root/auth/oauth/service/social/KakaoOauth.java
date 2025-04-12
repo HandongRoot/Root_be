@@ -95,8 +95,12 @@ public class KakaoOauth implements SocialOauth {
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
 
             String providerId = jsonNode.get("id").asText();
-            String refreshToken = token.get("refresh_token").toString() == null ? "" : token.get("refresh_token").toString();
-            socialRefreshTokenService.createSocialRefreshToken(providerId, refreshToken);
+            Object refreshTokenObj = token.get("refresh_token");
+            String refreshToken = refreshTokenObj != null ? refreshTokenObj.toString() : "";
+
+            if (!refreshToken.isEmpty()) {
+                socialRefreshTokenService.createSocialRefreshToken(providerId, refreshToken);
+            }
 
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("provider", "kakao");

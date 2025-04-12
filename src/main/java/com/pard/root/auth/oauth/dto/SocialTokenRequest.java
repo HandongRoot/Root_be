@@ -4,5 +4,6 @@ import lombok.Getter;
 
 @Getter
 public class SocialTokenRequest {
-    private String accessToken;
+    private String access_token;
+    private String refresh_token;
 }
