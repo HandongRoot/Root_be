@@ -10,6 +10,5 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CategoryCreateDto {
-    private UUID userId;
     private String title;
 }
