@@ -7,7 +7,6 @@ import com.pard.root.user.entity.User;
 import com.pard.root.user.repo.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         User user = userRepository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
 
@@ -37,6 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
                 .toList();
 
-        return new CustomUserDetails(user.getId().toString(), user.getEmail(), authorities);
+        return new CustomUserDetails(user.getId(), user.getEmail(), authorities);
     }
 }
