@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,11 +31,11 @@ public class CategoryController {
     }
 
 
-    @PostMapping("")
+    @PostMapping()
     @Operation(summary = "Category 등록 기능", description = "해당 유저가 Category 생성")
-    public ResponseEntity<?> saveCategory(@RequestBody CategoryCreateDto dto) {
+    public ResponseEntity<?> saveCategory(@AuthenticationPrincipal UUID userId, @RequestBody CategoryCreateDto dto) {
         try {
-            Long id = categoryService.save(dto);
+            Long id = categoryService.save(userId, dto);
             return ResponseEntity.ok(id);
 //        } catch (CategoryAlreadyExistsException e) {
 //            log.error("Category already exists: {}", dto.getTitle(), e);
@@ -48,9 +49,9 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/findAll/{userId}")
+    @GetMapping("/findAll")
     @Operation(summary = "Category 보기 (모든 것)", description = "해당 유저가 가지고 있는 Category를 다 보기")
-    public ResponseEntity<?> getAllCategories(@PathVariable UUID userId) {
+    public ResponseEntity<?> getAllCategories(@AuthenticationPrincipal UUID userId) {
         try {
 //            checkVaildate(userId);
             List<CategoryReadDto> readDto = categoryService.findAll(userId);
@@ -62,9 +63,9 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/search/{userId}")
+    @GetMapping("/search")
     @Operation(summary = "Category 검색 기능", description = "Param({userId}?title={data})해당 유저가 같고 있는 Category를 찾는 기능입니다.")
-    public ResponseEntity<?> searchCategory(@RequestParam String title, @PathVariable UUID userId) {
+    public ResponseEntity<?> searchCategory(@AuthenticationPrincipal String title, @PathVariable UUID userId) {
         try {
 //            checkVaildate(userId);
             List<CategoryReadDto> readDto = categoryService.searchCategoryList(userId, title);
@@ -76,9 +77,9 @@ public class CategoryController {
         }
     }
 
-    @PatchMapping("/update/title/{userId}/{categoryId}")
+    @PatchMapping("/update/title/{categoryId}")
     @Operation(summary = "Category's Title 변경 기능", description = "Category의 Id 값으로 Title을 새롭게 변경하는 기능")
-    public ResponseEntity<?> updateCategory(@PathVariable UUID userId, @PathVariable Long categoryId, @RequestBody CategoryUpdateDto dto) {
+    public ResponseEntity<?> updateCategory(@AuthenticationPrincipal UUID userId, @PathVariable Long categoryId, @RequestBody CategoryUpdateDto dto) {
         try {
 //            checkVaildate(userId);
             categoryService.updateTitle(categoryId, userId, dto);
@@ -89,9 +90,9 @@ public class CategoryController {
         }
     }
 
-    @DeleteMapping("/delete/{userId}/{categoryId}")
+    @DeleteMapping("/delete/{categoryId}")
     @Operation(summary = "Category 삭제 기능", description = "Category 의 Id 값으로 Category 삭제")
-    public ResponseEntity<?> deleteCategory(@PathVariable UUID userId, @PathVariable Long categoryId) {
+    public ResponseEntity<?> deleteCategory(@AuthenticationPrincipal UUID userId, @PathVariable Long categoryId) {
         try {
 //            checkVaildate(userId);
             categoryService.deleteCategory(categoryId, userId);

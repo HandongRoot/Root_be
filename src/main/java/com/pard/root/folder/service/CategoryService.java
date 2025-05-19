@@ -35,8 +35,8 @@ public class CategoryService {
     private final UserService userService;
     private final ContentCategoryRepository contentCategoryRepo;
 
-    public Long save(CategoryCreateDto categoryCreateDto) {
-        User user = userService.findById(categoryCreateDto.getUserId());
+    public Long save(UUID userId, CategoryCreateDto categoryCreateDto) {
+        User user = userService.findById(userId);
 //        SecurityUtil.validateUserAccess(categoryCreateDto.getUserId());
         return categoryRepo.save(Category.toEntity(user, categoryCreateDto.getTitle(), 0)).getId();
     }

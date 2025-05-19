@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -28,9 +29,9 @@ public class ContentController {
     }
 
 
-    @PostMapping("/{userId}")
+    @PostMapping()
     @Operation(summary = "content 등록 기능", description = "해당 유저가 content 생성, Param 에 categoryId가 들어올 시 해당 category 에 연동 되어 저장된다.")
-    public ResponseEntity<String> saveContent(@PathVariable UUID userId, @RequestBody ContentCreateDto dto, @RequestParam(required = false) Long category) {
+    public ResponseEntity<String> saveContent(@AuthenticationPrincipal UUID userId, @RequestBody ContentCreateDto dto, @RequestParam(required = false) Long category) {
         try {
 //            checkVaildate(userId);
             contentService.saveContent(userId, dto, category);
@@ -44,9 +45,9 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/find/{userId}/{categoryId}")
+    @GetMapping("/find/{categoryId}")
     @Operation(summary = "Category 내에서 Contents 불러오기 기능", description = "해당 유저의 Category 속에 담겨있는 Content를 불러오기")
-    public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @PathVariable UUID userId, @RequestParam(required = false) Long contentId) {
+    public ResponseEntity<?> findByCategory(@PathVariable Long categoryId, @AuthenticationPrincipal UUID userId, @RequestParam(required = false) Long contentId) {
         try {
 //            checkVaildate(userId);
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findByCategoryId(categoryId, userId, contentId));
@@ -55,9 +56,9 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/findAll/{userId}")
+    @GetMapping("/findAll")
     @Operation(summary = "Contents 일정 갯수 불러오기", description = "해당 유저의 모든 Contents 를 불러온다.")
-    public ResponseEntity<?> findNextPageByUser(@PathVariable UUID userId, @RequestParam(required = false) Long contentId) {
+    public ResponseEntity<?> findNextPageByUser(@AuthenticationPrincipal UUID userId, @RequestParam(required = false) Long contentId) {
         try {
 //            checkVaildate(userId);
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findNextPageByUser(userId, contentId));
@@ -66,9 +67,9 @@ public class ContentController {
         }
     }
 
-    @GetMapping("/search/{userId}")
+    @GetMapping("/search")
     @Operation(summary = "특정 Content 검색 기능", description = "Param({userId}?title={data}) 값으로 해당 유저의 contents 를 검색한다.")
-    public ResponseEntity<?> findByUserIdAndTitleContains(@PathVariable UUID userId, @RequestParam String title) {
+    public ResponseEntity<?> findByUserIdAndTitleContains(@AuthenticationPrincipal UUID userId, @RequestParam String title) {
         try {
 //            checkVaildate(userId);
             return ResponseEntity.status(HttpStatus.OK).body(contentService.findByUserIdAndTitleContains(userId, title));
@@ -77,9 +78,9 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/add/{userId}/{categoryId}")
+    @PatchMapping("/add/{categoryId}")
     @Operation(summary = "Contents 의 Category 추가 기능 (겔러리 용)", description = "해당 Content 여러 개 혹은 1개가 CategoryId(to)를 받아 그 category로 주입.")
-    public ResponseEntity<?> addCategoryToContent(@RequestBody Long[] contentIds,@PathVariable UUID userId ,@PathVariable Long categoryId) {
+    public ResponseEntity<?> addCategoryToContent(@RequestBody Long[] contentIds,@AuthenticationPrincipal UUID userId ,@PathVariable Long categoryId) {
         try {
 //            checkVaildate(userId);
             contentService.addCategoryToContent(contentIds, categoryId, userId);
@@ -89,9 +90,9 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/change/{userId}/{beforeCategoryId}/{afterCategoryId}")
+    @PatchMapping("/change/{beforeCategoryId}/{afterCategoryId}")
     @Operation(summary = "Content가 있던 Category의 정보를 바꾸는 기능 (카테고리 용)", description = "해당 Content가 CategoryId(to)를 받아 그 category로 변경, if(CategoryId == 0) 일 시, category에서 빠지게 됨")
-    public ResponseEntity<?> changeCategoryToContent(@PathVariable Long afterCategoryId, @PathVariable Long beforeCategoryId, @PathVariable UUID userId, @RequestBody Long contentId){
+    public ResponseEntity<?> changeCategoryToContent(@PathVariable Long afterCategoryId, @PathVariable Long beforeCategoryId, @AuthenticationPrincipal UUID userId, @RequestBody Long contentId){
         try {
 //            checkVaildate(userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(contentService.changeCategoryToContent(contentId, beforeCategoryId, afterCategoryId, userId));
@@ -100,9 +101,9 @@ public class ContentController {
         }
     }
 
-    @PatchMapping("/update/title/{userId}/{contentId}")
+    @PatchMapping("/update/title/{contentId}")
     @Operation(summary = "Content의 이름 변경 기능", description = "해당 유저의 Content의 이름을 바꾸도록 한다.")
-    public ResponseEntity<?> updateTitle(@PathVariable UUID userId, @PathVariable Long contentId, @RequestBody ContentUpdateDto dto) {
+    public ResponseEntity<?> updateTitle(@AuthenticationPrincipal UUID userId, @PathVariable Long contentId, @RequestBody ContentUpdateDto dto) {
         try {
 //            checkVaildate(userId);
             contentService.updateTitle(userId, contentId, dto);
@@ -112,9 +113,9 @@ public class ContentController {
         }
     }
 
-    @DeleteMapping("/{userId}/{contentId}")
+    @DeleteMapping("/{contentId}")
     @Operation(summary = "Content 삭제 기능", description = "해당 유저가 가지고 있는 Content 의 Id 값으로 Content 삭제")
-    public ResponseEntity<String> deleteContent(@PathVariable UUID userId, @PathVariable Long contentId) {
+    public ResponseEntity<String> deleteContent(@AuthenticationPrincipal UUID userId, @PathVariable Long contentId) {
         try {
 //            checkVaildate(userId);
             contentService.deleteContent(contentId, userId);
