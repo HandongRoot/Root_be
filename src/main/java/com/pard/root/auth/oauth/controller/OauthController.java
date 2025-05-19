@@ -26,11 +26,11 @@ public class OauthController {
     private final OauthService oauthService;
     private final TokenService tokenService;
 
-    @GetMapping("/{socialLoginType}")
-    @Operation(summary = "소셜 로그인 요청 처리 (웹)", description = "사용자가 특정 소셜 로그인 타입(구글, 카카오)으로 로그인 요청을 보내면 해당 요청을 OauthService로 넘겨 처리합니다.")
-    public void socialLogin(@PathVariable("socialLoginType") SocialLoginType socialLoginType) {
-        oauthService.request(socialLoginType);
-    }
+//    @GetMapping("/{socialLoginType}")
+//    @Operation(summary = "소셜 로그인 요청 처리 (웹)", description = "사용자가 특정 소셜 로그인 타입(구글, 카카오)으로 로그인 요청을 보내면 해당 요청을 OauthService로 넘겨 처리합니다.")
+//    public void socialLogin(@PathVariable("socialLoginType") SocialLoginType socialLoginType) {
+//        oauthService.request(socialLoginType);
+//    }
 
     @PostMapping("/apple")
     @Operation(summary = "에플 로그인", description = "에플 로그인을 처리합니다.")
