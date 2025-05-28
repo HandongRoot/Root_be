@@ -4,29 +4,32 @@ import com.pard.root.config.security.util.SecurityUtil;
 import com.pard.root.content.dto.ContentCreateDto;
 import com.pard.root.content.dto.ContentUpdateDto;
 import com.pard.root.content.service.ContentService;
+import com.pard.root.content.service.MetadataService;
 import com.pard.root.exception.BaseException;
 import com.pard.root.exception.CustomException;
 import com.pard.root.exception.ExceptionCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/content")
+@RequiredArgsConstructor
 @Tag(name = "Contents API", description = "Contents 관련 API")
 public class ContentController {
-    private final ContentService contentService;
 
-    public ContentController(ContentService contentService) {
-        this.contentService = contentService;
-    }
+    private final ContentService contentService;
+    private final MetadataService metadataService;
 
 
     @PostMapping()
@@ -122,6 +125,16 @@ public class ContentController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Content deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
+    @GetMapping("/metadata")
+    public ResponseEntity<?> getMetadata(@RequestBody Map<String, String> req) {
+        try {
+            String url = req.get("url");
+            return ResponseEntity.ok(metadataService.fetchMetadata(url));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

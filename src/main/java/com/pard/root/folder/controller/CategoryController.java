@@ -4,11 +4,10 @@ package com.pard.root.folder.controller;
 import com.pard.root.folder.dto.CategoryCreateDto;
 import com.pard.root.folder.dto.CategoryReadDto;
 import com.pard.root.folder.dto.CategoryUpdateDto;
-import com.pard.root.folder.entity.Category;
 import com.pard.root.folder.service.CategoryService;
-import com.pard.root.config.security.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +20,11 @@ import java.util.UUID;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/category")
+@RequiredArgsConstructor
 @Tag(name = "Category API", description = "Category 관련 API")
 public class CategoryController {
 
     private final CategoryService categoryService;
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
 
     @PostMapping()
