@@ -7,6 +7,7 @@ import com.pard.root.exception.CustomException;
 import com.pard.root.exception.ExceptionCode;
 import com.pard.root.helper.constants.UserState;
 import com.pard.root.user.dto.UserAccessDto;
+import com.pard.root.user.dto.UserAccessResponseDto;
 import com.pard.root.user.dto.UserCreateDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.entity.User;
@@ -55,6 +56,12 @@ public class UserService {
 
     public User findById(UUID userId) {
         return userRepository.findById(userId).orElse(null);
+    }
+
+    public UserAccessResponseDto findUserAccess(UUID userId) {
+        User user = findById(userId);
+
+        return user != null ? UserAccessResponseDto.from(user) : UserAccessResponseDto.builder().build();
     }
 
     public UserReadDto findByUserId(UUID id) {
