@@ -12,7 +12,6 @@ import java.util.UUID;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserReadDto {
-    private UUID id;
     private String name;
     private String email;
     private Boolean termsOfServiceAgrmnt;
@@ -21,7 +20,6 @@ public class UserReadDto {
     private String provider;
 
     public UserReadDto(User user) {
-        this.id = user.getId();
         this.name = user.getName();
         this.email = user.getEmail();
         this.pictureUrl = user.getPictureUrl();
