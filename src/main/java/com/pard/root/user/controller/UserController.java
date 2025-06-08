@@ -2,6 +2,7 @@ package com.pard.root.user.controller;
 
 import com.pard.root.auth.oauth.service.OauthService;
 import com.pard.root.user.dto.UserAccessDto;
+import com.pard.root.user.dto.UserAccessResponseDto;
 import com.pard.root.user.dto.UserReadDto;
 import com.pard.root.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,12 @@ public class UserController {
 //            checkValidate(userId);
         UserReadDto userReadDto = userService.findByUserId(userId);
         return ResponseEntity.ok(userReadDto);
+    }
+
+    @GetMapping("/check/argmnt")
+    @Operation(summary = "User의 argument 정보를 확인", description = "개인 정보 처리 동의 및 이용 약관의 유무 여부를 확인한다.")
+    public ResponseEntity<UserAccessResponseDto> findUserAccessArgmntByUserId(@AuthenticationPrincipal UUID userId) {
+        return ResponseEntity.ok(userService.findUserAccess(userId));
     }
 
     @PostMapping("/argmnt")
